@@ -1,0 +1,35 @@
+{
+  "name": "oscp-spatial-content-discovery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "tsc && node dist/server.js",
+    "build": "tsc",
+    "dev": "concurrently --kill-others \"tsc -w\" \"nodemon dist/server.js\""
+  },
+  "keywords": [
+    "open ar cloud",
+    "spatial discovery",
+    "spatial search"
+  ],
+  "author": "James Jackson",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "@types/node": "^13.13.12",
+    "@types/request-promise": "^4.1.46",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.16.4",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "swagger-ui-express": "^4.1.4",
+    "typescript": "3.3.3333"
+  },
+  "devDependencies": {
+    "concurrently": "^2.2.0",
+    "nodemon": "^2.0.4"
+  }
+}

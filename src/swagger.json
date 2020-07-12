@@ -1,0 +1,51 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "oscp-spatial-content-discovery",
+        "description": "OSCP Spatial Content Discovery Service (Open AR Cloud)",
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Local Dev"
+        }
+    ],
+
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/scrs": {
+            "get": {
+                "summary": "Get SCRs within given bbox",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "bbox",
+                        "required": true,
+                        "description": "SCRs within bbox",
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                    },
+                    "404": {
+                        "description": "Failed"
+                    }
+                }
+            }
+
+        },
+
+    },
+
+}
