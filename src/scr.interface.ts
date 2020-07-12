@@ -1,7 +1,7 @@
 
 export interface GeoPose {
-	north: Number;
-	east: Number;
+    north: Number;
+    east: Number;
     vertical: Number;
     qNorth: Number;
     qEast: Number;
