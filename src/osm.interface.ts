@@ -34,4 +34,3 @@ export interface RootObject {
     elements: Element[];
     bounds: Bounds;
 }
-
