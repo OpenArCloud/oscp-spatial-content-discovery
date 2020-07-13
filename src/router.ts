@@ -8,6 +8,17 @@ class Router {
     constructor(server: express.Express) {
         const router = express.Router()
 
+        router.get("/scrs/:id", async (req: express.Request, res: express.Response) => {
+          
+          try {
+            const id: string = String(req.params.id);
+            const scr: SCR = await Service.find(id);
+
+            res.status(200).send(scr);
+          } catch (e) {
+            res.status(404).send(e.message);
+          }
+        });
 
         router.get("/scrs", async (req: express.Request, res: express.Response) => {
           

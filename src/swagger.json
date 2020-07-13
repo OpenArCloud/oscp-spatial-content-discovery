@@ -23,7 +23,7 @@
         "application/json"
     ],
     "paths": {
-        "/scrs": {
+        "/scrs": {         
             "get": {
                 "summary": "Get SCRs within given bbox",
                 "parameters": [
@@ -45,7 +45,28 @@
             }
 
         },
+        "/scrs/{id}": {
+            "get": {
+                "summary": "Get SCR with given ID",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "description": "SCR with id",
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                    },
+                    "404": {
+                        "description": "Failed"
+                    }
+                }
+            },            
 
+        },
     },
 
 }
