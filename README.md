@@ -43,3 +43,12 @@ Test the API via Swagger
 ```
 http://localhost:3000/swagger/
 ```
+
+## Release 0 Status Snapshot
+
+- [x] Read specific spatial content record via REST API 
+- [ ] REST API authentication
+- [x] Read (bbox search) spatial content records via REST API
+- [ ] Delete spatial content record via REST API (single)
+- [ ] Create spatial content record via REST API (single)
+- [x] Define base spatial content record (JSON)
