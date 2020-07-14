@@ -26,10 +26,11 @@ cd oscp-spatial-content-discovery
 npm install
 ```
 
-Create .env file with BASE_URL for Spatial Discovery Core ex.
+Create .env file with BASE_URL and an existing CHANGESET for Spatial Discovery Core ex.
 
 ```
 BASE_URL="http://localhost:5000"
+CHANGESET=2895089894295851115
 ```
 
 Start the Spatial Content Discovery service
@@ -50,5 +51,5 @@ http://localhost:3000/swagger/
 - [ ] REST API authentication
 - [x] Read (bbox search) spatial content records via REST API
 - [x] Delete spatial content record via REST API (single)
-- [ ] Create spatial content record via REST API (single)
+- [x] Create spatial content record via REST API (single)
 - [x] Define base spatial content record (JSON)

@@ -1,62 +1,65 @@
+import { ScrResp, ScrReq } from "./scr.interface";
+import request from "request-promise";
+import { Element } from "./osm_json.interface";
+import { RootObject } from "./osm_xml.interface";
+import * as osm2json from "osmtogeojson";
+import { DOMParser } from "xmldom";
 
-import { SCR } from "./scr.interface"
-import request from "request-promise"
-import { Element } from "./osm.interface"
-import { RootObject } from "./osm_xml.interface"
-import * as osm2json from 'osmtogeojson'
-import { DOMParser } from 'xmldom'
-// import * as json2osm from 'geojsontoosm'
+export const find = async (id: string): Promise<ScrResp> => {
+  const BASE_URL: string = process.env.BASE_URL as string;
 
-export const find = async (id: string): Promise<SCR> => {
-  
-  const BASE_URL: string = process.env.BASE_URL as string
+  const url = BASE_URL + `/api/0.6/node/` + id;
 
-  const url = BASE_URL + `/api/0.6/node/` + id
+  const response = await request(url);
+  const respXml = new DOMParser().parseFromString(response, "application/xml");
+  const respGeoJson: RootObject = <RootObject>osm2json.default(respXml);
 
-  const response = await request(url)
-  const respXml = new DOMParser().parseFromString(response, 'application/xml')
-  const respGeoJson : RootObject = <RootObject>osm2json.default(respXml)
-
-  const scr: SCR = {
-      id: respGeoJson.features[0].properties.id.replace('node/',''),
-      type: "scr",
-      geopose: {north: respGeoJson.features[0].geometry.coordinates[1], east: respGeoJson.features[0].geometry.coordinates[0], vertical: respGeoJson.features[0].properties.geopose_vertical, qNorth: respGeoJson.features[0].properties.geopose_qNorth, qEast: respGeoJson.features[0].properties.geopose_qEast, qVertical: respGeoJson.features[0].properties.geopose_qVertical, qW: respGeoJson.features[0].properties.geopose_qW},
-      url: respGeoJson.features[0].properties.url,
-      timestamp: respGeoJson.features[0].properties.timestamp
-  }
+  const scr: ScrResp = {
+    id: respGeoJson.features[0].properties.id.replace("node/", ""),
+    type: "scr",
+    geopose: {
+      north: respGeoJson.features[0].geometry.coordinates[1],
+      east: respGeoJson.features[0].geometry.coordinates[0],
+      vertical: respGeoJson.features[0].properties.geopose_vertical,
+      qNorth: respGeoJson.features[0].properties.geopose_qNorth,
+      qEast: respGeoJson.features[0].properties.geopose_qEast,
+      qVertical: respGeoJson.features[0].properties.geopose_qVertical,
+      qW: respGeoJson.features[0].properties.geopose_qW,
+    },
+    url: respGeoJson.features[0].properties.url,
+    timestamp: respGeoJson.features[0].properties.timestamp,
+  };
 
   if (scr) {
-    return scr
+    return scr;
   }
 
-  throw new Error("No record found")
+  throw new Error("No record found");
 };
 
-
 export const remove = async (id: string): Promise<void> => {
-  
-  const BASE_URL: string = process.env.BASE_URL as string
-  const url = BASE_URL + `/api/0.6/node/` + id
+  const BASE_URL: string = process.env.BASE_URL as string;
+  const url = BASE_URL + `/api/0.6/node/` + id;
 
-  const response = await request(url)
-  const respXml = new DOMParser().parseFromString(response, 'application/xml')
-  const respGeoJson : RootObject = <RootObject>osm2json.default(respXml)
-  const changeset : string = respGeoJson.features[0].properties.changeset
+  const response = await request(url);
+  const respXml = new DOMParser().parseFromString(response, "application/xml");
+  const respGeoJson: RootObject = <RootObject>osm2json.default(respXml);
+  const changeset: string = respGeoJson.features[0].properties.changeset;
 
   if (changeset) {
-
-    const xmlString: string = '<osm><node id="' + id + '" changeset="' + changeset + '"></node></osm>'
+    const xmlString: string =
+      '<osm><node id="' + id + '" changeset="' + changeset + '"></node></osm>';
 
     const options = {
       uri: url,
       body: xmlString,
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'text/xml',
-      }
-    }
+        "Content-Type": "text/xml",
+      },
+    };
 
-    const response = await request(options)
+    const response = await request(options);
 
     return;
   }
@@ -64,30 +67,77 @@ export const remove = async (id: string): Promise<void> => {
   throw new Error("No record found to delete");
 };
 
-
-export const findBbox = async (bbox: string): Promise<SCR[]> => {
-
-  const BASE_URL: string = process.env.BASE_URL as string
-  const url = BASE_URL + `/api/0.6/map?bbox=` + bbox
+export const findBbox = async (bbox: string): Promise<ScrResp[]> => {
+  const BASE_URL: string = process.env.BASE_URL as string;
+  const url = BASE_URL + `/api/0.6/map?bbox=` + bbox;
 
   const options = {
-      uri: url,
-      headers: {
-          'Accept': 'application/json'
+    uri: url,
+    headers: {
+      Accept: "application/json",
+    },
+  };
+
+  const response = JSON.parse(await request(options));
+
+  const mapResponse = (response: Element[]) =>
+    response.map((p) => ({
+      id: p.id,
+      type: "scr",
+      geopose: {
+        north: p.lat,
+        east: p.lon,
+        vertical: p.tags.geopose_vertical,
+        qNorth: p.tags.geopose_qNorth,
+        qEast: p.tags.geopose_qEast,
+        qVertical: p.tags.geopose_qVertical,
+        qW: p.tags.geopose_qW,
       },
-  }
+      url: p.tags.url,
+      timestamp: p.timestamp,
+    }));
 
-  const response = JSON.parse(await request(options))
+  const scrs: ScrResp[] = mapResponse(response.elements);
 
-  const mapResponse = (response: Element[]) => response.map((p) => ({
-    id: p.id,
-    type: "scr",
-    geopose: {north: p.lat, east: p.lon, vertical: p.tags.geopose_vertical, qNorth: p.tags.geopose_qNorth, qEast: p.tags.geopose_qEast, qVertical: p.tags.geopose_qVertical, qW: p.tags.geopose_qW},
-    url: p.tags.url,
-    timestamp: p.timestamp,
-  }))
+  return scrs;
+};
 
-  const scrs: SCR[] = mapResponse(response.elements)
+export const create = async (scr: ScrReq): Promise<void> => {
+  const BASE_URL: string = process.env.BASE_URL as string;
+  const CHANGESET: string = process.env.CHANGESET as string;
+  const url = BASE_URL + `/api/0.6/node/create`;
 
-  return scrs
-}
+  const xmlString: string =
+    '<osm><node id="-1" changeset="' +
+    CHANGESET +
+    '" uid="10" lon="' +
+    scr.geopose.east +
+    '" lat="' +
+    scr.geopose.north +
+    '"><tag k="geopose_vertical" v="' +
+    scr.geopose.vertical +
+    '"/><tag k="geopose_qNorth" v="' +
+    scr.geopose.qNorth +
+    '"/><tag k="geopose_qEast" v="' +
+    scr.geopose.qEast +
+    '"/><tag k="geopose_qVertical" v="' +
+    scr.geopose.qVertical +
+    '"/><tag k="geopose_qW" v="' +
+    scr.geopose.qW +
+    '"/><tag k="url" v="' +
+    scr.url +
+    '"/></node></osm>';
+
+  const options = {
+    uri: url,
+    body: xmlString,
+    method: "PUT",
+    headers: {
+      "Content-Type": "text/xml",
+    },
+  };
+
+  const response = await request(options);
+
+  return;
+};
