@@ -73,7 +73,7 @@ export const findBbox = async (bbox: string): Promise<SCR[]> => {
   const options = {
       uri: url,
       headers: {
-          'content-type': 'text/xml'
+          'Accept': 'application/json'
       },
   }
 
