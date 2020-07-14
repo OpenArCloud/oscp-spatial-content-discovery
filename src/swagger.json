@@ -64,7 +64,27 @@
                         "description": "Failed"
                     }
                 }
-            },            
+            }, 
+
+            "delete": {
+                "summary": "Delete SCR with given ID",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "description": "SCR with id",
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                    },
+                    "404": {
+                        "description": "Failed"
+                    }
+                }
+            }                       
 
         },
     },
