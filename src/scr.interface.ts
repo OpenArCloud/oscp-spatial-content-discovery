@@ -8,13 +8,7 @@ export interface GeoPose {
   qW: Number;
 }
 
-export interface ScrReq {
-  type: String;
-  geopose: GeoPose;
-  url: URL;
-}
-
-export interface ScrResp {
+export interface Scr {
   id: String;
   type: String;
   geopose: GeoPose;

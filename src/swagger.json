@@ -32,7 +32,17 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Scr"
+                  }
+                }
+              }
+            },
           },
           "404": {
             "description": "Failed"
@@ -47,7 +57,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/definitions/SCR"
+                "$ref": "#/definitions/ScrDto"
               }
             }
           }
@@ -76,7 +86,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Scr"
+                }
+              }
+            },
           },
           "404": {
             "description": "Failed"
@@ -105,7 +122,50 @@
     }
   },
   "definitions": {
-    "SCR": {
+    "Scr": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "geopose": {
+          "type": "object",
+          "properties": {
+            "north": {
+              "type": "number"
+            },
+            "east": {
+              "type": "number"
+            },
+            "vertical": {
+              "type": "number"
+            },
+            "qNorth": {
+              "type": "number"
+            },
+            "qEast": {
+              "type": "number"
+            },
+            "qVertical": {
+              "type": "number"
+            },
+            "qW": {
+              "type": "number"
+            }
+          }
+        },
+        "url": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      }
+    },
+    "ScrDto": {
       "type": "object",
       "properties": {
         "type": {
@@ -141,6 +201,6 @@
           "type": "string"
         }
       }
-    }
+    }    
   }
 }
