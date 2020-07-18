@@ -1,7 +1,8 @@
 import * as express from "express";
 import cors from "cors";
 import * as Service from "./service";
-import { ScrResp, ScrReq } from "./scr.interface";
+import { Scr } from "./scr.interface";
+import { ScrDto } from "./scr.dto";
 
 class Router {
   constructor(server: express.Express) {
@@ -12,7 +13,7 @@ class Router {
       async (req: express.Request, res: express.Response) => {
         try {
           const id: string = String(req.params.id);
-          const scr: ScrResp = await Service.find(id);
+          const scr: Scr = await Service.find(id);
           res.status(200).send(scr);
         } catch (e) {
           res.status(404).send(e.message);
@@ -36,7 +37,7 @@ class Router {
     router.get("/scrs", async (req: express.Request, res: express.Response) => {
       try {
         const bbox: string = String(req.query.bbox);
-        const scrs: ScrResp[] = await Service.findBbox(bbox);
+        const scrs: Scr[] = await Service.findBbox(bbox);
         res.status(200).send(scrs);
       } catch (e) {
         res.status(404).send(e.message);
@@ -47,7 +48,8 @@ class Router {
       "/scrs",
       async (req: express.Request, res: express.Response) => {
         try {
-          const scr: ScrReq = req.body;
+          let scr = new ScrDto();
+          Object.assign(scr, req.body);
           await Service.create(scr);
           res.sendStatus(201);
         } catch (e) {
