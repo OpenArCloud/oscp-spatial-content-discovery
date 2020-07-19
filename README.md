@@ -6,7 +6,9 @@ See [ISSUES](https://github.com/OpenArCloud/oscp-spatial-content-discovery/issue
 
 ## Purpose
 
-TODO
+Baseline implementation of the OSCP Spatial Content Discovery APIs built on the [kappa-osm](https://github.com/digidem/kappa-osm) database for decentralized OpenStreetMap and synchronizing in real-time via [hyperswarm](https://github.com/hyperswarm/hyperswarm).
+
+The P2P stack is based on components from the [Dat protocol](https://www.datprotocol.com/). The [kappa-osm](https://github.com/digidem/kappa-osm) database builds on [kappa-core](https://github.com/kappa-db/kappa-core), which combines multi-writer append-only logs, [hypercore](https://github.com/mafintosh/hypercore) via [multifeed](https://github.com/kappa-db/multifeed), with materialized views. Spatial queries rely on a Bkd tree materialized view, [unordered-materialized-bkd](https://github.com/digidem/unordered-materialized-bkd).
 
 
 
