@@ -1,69 +1,92 @@
 import { Scr } from "./scr.interface";
 import request from "request-promise";
 import { Element } from "./osm_json.interface";
-import { RootObject } from "./osm_xml.interface";
-import * as osm2json from "osmtogeojson";
-import { DOMParser } from "xmldom";
 import { BboxDto } from "./scr_bbox.dto";
 import { ScrDto } from "./scr.dto";
-import { validate, validateOrReject, validateSync } from "class-validator";
+import { validateOrReject } from "class-validator";
+
+import kappa from "kappa-core";
+import ram from "random-access-memory";
+import memdb from "memdb";
+import Osm from "kappa-osm";
+
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+const KAPPA_CORE_FILE: string = process.env.KAPPA_CORE_FILE as string;
+
+const osm = Osm({
+  core: kappa(KAPPA_CORE_FILE, { valueEncoding: "json" }),
+  index: memdb(),
+  storage: function (name, cb) {
+    cb(null, ram());
+  },
+});
 
 export const find = async (id: string): Promise<Scr> => {
-  const BASE_URL: string = process.env.BASE_URL as string;
+  const osmGet = new Promise<Element[]>((resolve, reject) => {
+    osm.get(id, function (err, nodes) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
 
-  const url = BASE_URL + `/api/0.6/node/` + id;
+  const nodes: Element[] = await osmGet;
 
-  const response = await request(url);
-  const respXml = new DOMParser().parseFromString(response, "application/xml");
-  const respGeoJson: RootObject = <RootObject>osm2json.default(respXml);
+  if (nodes.length > 0) {
+    if (nodes[0].deleted) {
+      throw new Error("No record found");
+    }
 
-  const scr: Scr = {
-    id: respGeoJson.features[0].properties.id.replace("node/", ""),
-    type: "scr",
-    geopose: {
-      north: respGeoJson.features[0].geometry.coordinates[1],
-      east: respGeoJson.features[0].geometry.coordinates[0],
-      vertical: +respGeoJson.features[0].properties.geopose_vertical,
-      qNorth: +respGeoJson.features[0].properties.geopose_qNorth,
-      qEast: +respGeoJson.features[0].properties.geopose_qEast,
-      qVertical: +respGeoJson.features[0].properties.geopose_qVertical,
-      qW: +respGeoJson.features[0].properties.geopose_qW,
-    },
-    url: respGeoJson.features[0].properties.url,
-    timestamp: respGeoJson.features[0].properties.timestamp,
-  };
+    const mapResponse = (response: Element[]) =>
+      response.map((p) => ({
+        id: p.id,
+        type: "scr",
+        geopose: {
+          north: +p.lat,
+          east: +p.lon,
+          vertical: +p.tags.geopose_vertical,
+          qNorth: +p.tags.geopose_qNorth,
+          qEast: +p.tags.geopose_qEast,
+          qVertical: +p.tags.geopose_qVertical,
+          qW: +p.tags.geopose_qW,
+        },
+        url: p.tags.url,
+        timestamp: p.timestamp,
+      }));
 
-  if (scr) {
-    return scr;
+    const scrs: Scr[] = mapResponse(nodes);
+
+    return scrs[0];
   }
 
   throw new Error("No record found");
 };
 
 export const remove = async (id: string): Promise<void> => {
-  const BASE_URL: string = process.env.BASE_URL as string;
-  const url = BASE_URL + `/api/0.6/node/` + id;
+  const osmGet = new Promise<Element[]>((resolve, reject) => {
+    osm.get(id, function (err, nodes) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
 
-  const response = await request(url);
-  const respXml = new DOMParser().parseFromString(response, "application/xml");
-  const respGeoJson: RootObject = <RootObject>osm2json.default(respXml);
-  const changeset: string = respGeoJson.features[0].properties.changeset;
+  const nodes: Element[] = await osmGet;
 
-  if (changeset) {
-    const xmlString: string =
-      '<osm><node id="' + id + '" changeset="' + changeset + '"></node></osm>';
+  if (nodes.length > 0) {
+    if (nodes[0].deleted) {
+      throw new Error("No record found");
+    }
 
-    const options = {
-      uri: url,
-      body: xmlString,
-      method: "DELETE",
-      headers: {
-        "Content-Type": "text/xml",
-      },
-    };
+    const osmDel = new Promise((resolve, reject) => {
+      osm.del(nodes[0].id, { changeset: nodes[0].changeset }, function (err) {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
 
-    const response = await request(options);
-
+    await osmDel;
     return;
   }
 
@@ -71,29 +94,41 @@ export const remove = async (id: string): Promise<void> => {
 };
 
 export const findBbox = async (bboxStr: string): Promise<Scr[]> => {
-
-  const bboxArr = bboxStr.split(',');
+  const bboxArr = bboxStr.split(",");
   let bboxObj = new BboxDto();
   bboxObj.minLongitude = +bboxArr[0];
   bboxObj.minLatitude = +bboxArr[1];
   bboxObj.maxLongitude = +bboxArr[2];
   bboxObj.maxLatitude = +bboxArr[3];
 
-  const err = validateSync(bboxObj);
-  if (err.length > 0) throw new Error("Invalid bounding box");
-  if ((bboxObj.minLongitude > bboxObj.maxLongitude) || (bboxObj.minLatitude > bboxObj.maxLatitude)) throw new Error("Invalid bounding box");
+  try {
+    await validateOrReject(bboxObj);
+  } catch (errors) {
+    throw new Error("Invalid bounding box");
+  }
 
-  const BASE_URL: string = process.env.BASE_URL as string;
-  const url = BASE_URL + `/api/0.6/map?bbox=` + bboxStr;
+  if (
+    bboxObj.minLongitude > bboxObj.maxLongitude ||
+    bboxObj.minLatitude > bboxObj.maxLatitude
+  )
+    throw new Error("Invalid bounding box");
 
-  const options = {
-    uri: url,
-    headers: {
-      Accept: "application/json",
-    },
-  };
+  const osmQuery = new Promise<Element[]>((resolve, reject) => {
+    osm.query(
+      [
+        bboxObj.minLongitude,
+        bboxObj.minLatitude,
+        bboxObj.maxLongitude,
+        bboxObj.maxLatitude,
+      ],
+      function (err, nodes) {
+        if (err) reject(err);
+        else resolve(nodes);
+      }
+    );
+  });
 
-  const response = JSON.parse(await request(options));
+  const nodes: Element[] = await osmQuery;
 
   const mapResponse = (response: Element[]) =>
     response.map((p) => ({
@@ -112,51 +147,47 @@ export const findBbox = async (bboxStr: string): Promise<Scr[]> => {
       timestamp: p.timestamp,
     }));
 
-  const scrs: Scr[] = mapResponse(response.elements);
+  const scrs: Scr[] = mapResponse(nodes);
 
   return scrs;
 };
 
-export const create = async (scr: ScrDto): Promise<void> => {
+export const create = async (scr: ScrDto): Promise<string> => {
+  try {
+    await validateOrReject(scr);
+  } catch (errors) {
+    throw new Error("Validation failed");
+  }
 
-  const err = validateSync(scr);
-  if (err.length > 0) throw new Error("Validation failed");
-
-  const BASE_URL: string = process.env.BASE_URL as string;
   const CHANGESET: string = process.env.CHANGESET as string;
-  const url = BASE_URL + `/api/0.6/node/create`;
 
-  const xmlString: string =
-    '<osm><node id="-1" changeset="' +
-    CHANGESET +
-    '" uid="10" lon="' +
-    scr.geopose.east +
-    '" lat="' +
-    scr.geopose.north +
-    '"><tag k="geopose_vertical" v="' +
-    scr.geopose.vertical +
-    '"/><tag k="geopose_qNorth" v="' +
-    scr.geopose.qNorth +
-    '"/><tag k="geopose_qEast" v="' +
-    scr.geopose.qEast +
-    '"/><tag k="geopose_qVertical" v="' +
-    scr.geopose.qVertical +
-    '"/><tag k="geopose_qW" v="' +
-    scr.geopose.qW +
-    '"/><tag k="url" v="' +
-    scr.url +
-    '"/></node></osm>';
-
-  const options = {
-    uri: url,
-    body: xmlString,
-    method: "PUT",
-    headers: {
-      "Content-Type": "text/xml",
+  const node: Element = {
+    type: "node",
+    changeset: CHANGESET,
+    lon: scr.geopose.east,
+    lat: scr.geopose.north,
+    tags: {
+      geopose_vertical: scr.geopose.vertical,
+      geopose_qNorth: scr.geopose.qNorth,
+      geopose_qEast: scr.geopose.qEast,
+      geopose_qVertical: scr.geopose.qVertical,
+      geopose_qW: scr.geopose.qW,
+      url: scr.url,
     },
   };
 
-  const response = await request(options);
+  const osmCreate = new Promise<Element>((resolve, reject) => {
+    osm.create(node, function (err, nodes) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
 
-  return;
+  const nodeResp: Element = await osmCreate;
+
+  if (!nodeResp.id) {
+    throw new Error("Failed to create record");
+  }
+
+  return nodeResp.id;
 };

@@ -1,31 +1,38 @@
-import { IsLatitude, IsLongitude, IsUrl, IsNumber, IsPositive, IsString, Equals } from 'class-validator';
+import {
+  IsLatitude,
+  IsLongitude,
+  IsUrl,
+  IsNumber,
+  IsPositive,
+  IsString,
+  Equals,
+} from "class-validator";
 
 export class GeoPoseDto {
   @IsLatitude()
-  north: Number;
+  north: number;
 
   @IsLongitude()
-  east: Number;
+  east: number;
 
   @IsNumber()
   @IsPositive()
-  vertical: Number;
+  vertical: number;
 
   @IsNumber()
-  qNorth: Number;
+  qNorth: number;
 
   @IsNumber()
-  qEast: Number;
+  qEast: number;
 
   @IsNumber()
-  qVertical: Number;
+  qVertical: number;
 
   @IsNumber()
-  qW: Number;
+  qW: number;
 }
 
 export class ScrDto {
-
   @IsString()
   @Equals("scr")
   type: String;
