@@ -1,4 +1,4 @@
-import { IsLatitude, IsLongitude } from 'class-validator';
+import { IsLatitude, IsLongitude } from "class-validator";
 
 export class BboxDto {
   @IsLongitude()
@@ -12,6 +12,4 @@ export class BboxDto {
 
   @IsLatitude()
   maxLatitude: number;
-
 }
-

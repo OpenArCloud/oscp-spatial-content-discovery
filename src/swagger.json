@@ -42,7 +42,7 @@
                   }
                 }
               }
-            },
+            }
           },
           "404": {
             "description": "Failed"
@@ -62,12 +62,19 @@
             }
           }
         },
-        "produces": ["application/json"],
+        "produces": ["text/html"],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "OK",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
-          "400": {
+          "404": {
             "description": "Failed"
           }
         }
@@ -93,7 +100,7 @@
                   "$ref": "#/definitions/Scr"
                 }
               }
-            },
+            }
           },
           "404": {
             "description": "Failed"
@@ -114,7 +121,7 @@
           "200": {
             "description": "OK"
           },
-          "404": {
+          "500": {
             "description": "Failed"
           }
         }
@@ -201,6 +208,6 @@
           "type": "string"
         }
       }
-    }    
+    }
   }
 }

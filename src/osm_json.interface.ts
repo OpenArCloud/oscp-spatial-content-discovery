@@ -8,16 +8,17 @@ export interface Tags {
 }
 
 export interface Element {
-  id: string;
+  id?: string;
+  deleted?: boolean;
   type: string;
   changeset: string;
-  uid: string;
+  uid?: string;
   lon: number;
   lat: number;
   tags: Tags;
-  timestamp: Date;
-  links: any[];
-  version: string;
+  timestamp?: Date;
+  links?: any[];
+  version?: string;
 }
 
 export interface Bounds {

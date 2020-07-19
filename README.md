@@ -15,21 +15,10 @@ TODO
 
 Node 10 (newer version may present issues with Dat framework)
 
-
-Install and run an instance of the [Spatial Discovery Core](https://github.com/OpenArCloud/oscp-spatial-discovery-core). Populate some test records.
-
-Install the Spatial Content Discovery service
+Create .env file with KAPPA_CORE_FILE and an existing CHANGESET ex.
 
 ```
-git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
-cd oscp-spatial-content-discovery
-npm install
-```
-
-Create .env file with BASE_URL and an existing CHANGESET for Spatial Discovery Core ex.
-
-```
-BASE_URL="http://localhost:5000"
+KAPPA_CORE_FILE="geo3_sds1"
 CHANGESET=2895089894295851115
 ```
 

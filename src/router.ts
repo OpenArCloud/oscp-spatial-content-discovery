@@ -50,8 +50,8 @@ class Router {
         try {
           let scr = new ScrDto();
           Object.assign(scr, req.body);
-          await Service.create(scr);
-          res.sendStatus(201);
+          const id: string = await Service.create(scr);
+          res.status(201).send(id);
         } catch (e) {
           res.status(404).send(e.message);
         }
