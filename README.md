@@ -17,11 +17,13 @@ The P2P stack is based on components from the [Dat protocol](https://www.datprot
 
 Node 10 (newer version may present issues with Dat framework)
 
-Create .env file with KAPPA_CORE_FILE and an existing CHANGESET ex.
+Create .env file with KAPPA_CORE_FILE, existing CHANGESET, and AUTH0 params ex.
 
 ```
 KAPPA_CORE_FILE="geo3_sds1"
 CHANGESET=2895089894295851115
+AUTH0_ISSUER=https://dev-r3x4eu9z.us.auth0.com/
+AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
 ```
 
 Start the Spatial Content Discovery service
@@ -39,7 +41,7 @@ http://localhost:3000/swagger/
 ## Release 0 Status
 
 - [x] Read specific spatial content record via REST API 
-- [ ] REST API authentication
+- [x] REST API authentication
 - [x] Read (bbox search) spatial content records via REST API
 - [x] Delete spatial content record via REST API (single)
 - [x] Create spatial content record via REST API (single)
