@@ -1,8 +1,8 @@
-import { Scr } from "./scr.interface";
+import { Scr } from "./models/scr.interface";
 import request from "request-promise";
-import { Element } from "./osm_json.interface";
-import { BboxDto } from "./scr_bbox.dto";
-import { ScrDto } from "./scr.dto";
+import { Element } from "./models/osm_json.interface";
+import { BboxDto } from "./models/scr_bbox.dto";
+import { ScrDto } from "./models/scr.dto";
 import { validateOrReject } from "class-validator";
 
 import kappa from "kappa-core";

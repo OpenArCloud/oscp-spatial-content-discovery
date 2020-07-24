@@ -1,8 +1,11 @@
 import * as express from "express";
 import cors from "cors";
 import * as Service from "./service";
-import { Scr } from "./scr.interface";
-import { ScrDto } from "./scr.dto";
+import { Scr } from "./models/scr.interface";
+import { ScrDto } from "./models/scr.dto";
+import { checkJwt } from "./middleware/authz.middleware";
+
+const jwtAuthz = require("express-jwt-authz");
 
 class Router {
   constructor(server: express.Express) {
@@ -23,6 +26,8 @@ class Router {
 
     router.delete(
       "/scrs/:id",
+      // checkJwt,
+      // jwtAuthz(["delete:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
           const id: string = String(req.params.id);
@@ -46,6 +51,8 @@ class Router {
 
     router.post(
       "/scrs",
+      // checkJwt,
+      // jwtAuthz(["create:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
           let scr = new ScrDto();
