@@ -17,11 +17,10 @@ The P2P stack is based on components from the [Dat protocol](https://www.datprot
 
 Node 10 (newer version may present issues with Dat framework)
 
-Create .env file with KAPPA_CORE_FILE, existing CHANGESET, and AUTH0 params ex.
+Create .env file with KAPPA_CORE_FILE and AUTH0 params ex.
 
 ```
 KAPPA_CORE_FILE="geo3_sds1"
-CHANGESET=2895089894295851115
 AUTH0_ISSUER=https://dev-r3x4eu9z.us.auth0.com/
 AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
 ```

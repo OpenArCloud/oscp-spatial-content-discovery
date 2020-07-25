@@ -159,11 +159,9 @@ export const create = async (scr: ScrDto): Promise<string> => {
     throw new Error("Validation failed");
   }
 
-  const CHANGESET: string = process.env.CHANGESET as string;
-
   const node: Element = {
     type: "node",
-    changeset: CHANGESET,
+    changeset: "abcdef",
     lon: scr.geopose.east,
     lat: scr.geopose.north,
     tags: {
