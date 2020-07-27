@@ -48,7 +48,7 @@ http://localhost:3000/swagger/
 ```
 
 ![Swagger image]
-(https://github.com/OpenArCloud/oscp-spatial-content-discovery/images/swagger.png)
+(https://github.com/OpenArCloud/oscp-spatial-content-discovery/tree/master/images/swagger.png)
 
 
 ## Spatial Content Record (base version - expected to evolve)
