@@ -19,15 +19,21 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
-    "/scrs": {
+    "/scrs/{topic}": {
       "get": {
         "summary": "Get SCRs within given bbox",
         "parameters": [
           {
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          },
+          {
             "in": "query",
             "name": "bbox",
             "required": true,
-            "description": "SCRs within bbox"
+            "description": "SCR bbox"
           }
         ],
         "responses": {
@@ -51,6 +57,14 @@
       },
       "post": {
         "summary": "Create a new SCR",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          }
+        ],
         "requestBody": {
           "description": "SCR Object",
           "required": true,
@@ -80,15 +94,21 @@
         }
       }
     },
-    "/scrs/{id}": {
+    "/scrs/{topic}/{id}": {
       "get": {
         "summary": "Get SCR with given ID",
         "parameters": [
           {
             "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          },
+          {
+            "in": "path",
             "name": "id",
             "required": true,
-            "description": "SCR with id"
+            "description": "SCR id"
           }
         ],
         "responses": {
@@ -112,9 +132,15 @@
         "parameters": [
           {
             "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          },
+          {
+            "in": "path",
             "name": "id",
             "required": true,
-            "description": "SCR with id"
+            "description": "SCR id"
           }
         ],
         "responses": {

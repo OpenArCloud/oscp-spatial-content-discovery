@@ -14,19 +14,31 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const KAPPA_CORE_FILE: string = process.env.KAPPA_CORE_FILE as string;
+const KAPPA_CORE_DIR: string = process.env.KAPPA_CORE_DIR as string;
+const GEOZONE: string = process.env.GEOZONE as string;
+const TOPICS: string[] = process.env.TOPICS.split(",");
 
-const osm = Osm({
-  core: kappa(KAPPA_CORE_FILE, { valueEncoding: "json" }),
-  index: memdb(),
-  storage: function (name, cb) {
-    cb(null, ram());
-  },
+export interface IHash {
+  [key: string]: any;
+}
+
+let kappaCores: IHash = {};
+
+TOPICS.forEach((topic) => {
+  kappaCores[topic] = Osm({
+    core: kappa(KAPPA_CORE_DIR + GEOZONE + "_" + topic, {
+      valueEncoding: "json",
+    }),
+    index: memdb(),
+    storage: function (name, cb) {
+      cb(null, ram());
+    },
+  });
 });
 
-export const find = async (id: string): Promise<Scr> => {
+export const find = async (topic: string, id: string): Promise<Scr> => {
   const osmGet = new Promise<Element[]>((resolve, reject) => {
-    osm.get(id, function (err, nodes) {
+    kappaCores[topic].get(id, function (err, nodes) {
       if (err) reject(err);
       else resolve(nodes);
     });
@@ -64,9 +76,9 @@ export const find = async (id: string): Promise<Scr> => {
   throw new Error("No record found");
 };
 
-export const remove = async (id: string): Promise<void> => {
+export const remove = async (topic: string, id: string): Promise<void> => {
   const osmGet = new Promise<Element[]>((resolve, reject) => {
-    osm.get(id, function (err, nodes) {
+    kappaCores[topic].get(id, function (err, nodes) {
       if (err) reject(err);
       else resolve(nodes);
     });
@@ -80,10 +92,14 @@ export const remove = async (id: string): Promise<void> => {
     }
 
     const osmDel = new Promise((resolve, reject) => {
-      osm.del(nodes[0].id, { changeset: nodes[0].changeset }, function (err) {
-        if (err) reject(err);
-        else resolve();
-      });
+      kappaCores[topic].del(
+        nodes[0].id,
+        { changeset: nodes[0].changeset },
+        function (err) {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
     });
 
     await osmDel;
@@ -93,7 +109,10 @@ export const remove = async (id: string): Promise<void> => {
   throw new Error("No record found to delete");
 };
 
-export const findBbox = async (bboxStr: string): Promise<Scr[]> => {
+export const findBbox = async (
+  topic: string,
+  bboxStr: string
+): Promise<Scr[]> => {
   const bboxArr = bboxStr.split(",");
   let bboxObj = new BboxDto();
   bboxObj.minLongitude = +bboxArr[0];
@@ -114,7 +133,7 @@ export const findBbox = async (bboxStr: string): Promise<Scr[]> => {
     throw new Error("Invalid bounding box");
 
   const osmQuery = new Promise<Element[]>((resolve, reject) => {
-    osm.query(
+    kappaCores[topic].query(
       [
         bboxObj.minLongitude,
         bboxObj.minLatitude,
@@ -152,7 +171,7 @@ export const findBbox = async (bboxStr: string): Promise<Scr[]> => {
   return scrs;
 };
 
-export const create = async (scr: ScrDto): Promise<string> => {
+export const create = async (topic: string, scr: ScrDto): Promise<string> => {
   try {
     await validateOrReject(scr);
   } catch (errors) {
@@ -175,7 +194,7 @@ export const create = async (scr: ScrDto): Promise<string> => {
   };
 
   const osmCreate = new Promise<Element>((resolve, reject) => {
-    osm.create(node, function (err, nodes) {
+    kappaCores[topic].create(node, function (err, nodes) {
       if (err) reject(err);
       else resolve(nodes);
     });
