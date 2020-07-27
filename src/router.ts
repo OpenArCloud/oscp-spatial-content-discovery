@@ -12,11 +12,12 @@ class Router {
     const router = express.Router();
 
     router.get(
-      "/scrs/:id",
+      "/scrs/:topic/:id",
       async (req: express.Request, res: express.Response) => {
         try {
+          const topic: string = String(req.params.topic);
           const id: string = String(req.params.id);
-          const scr: Scr = await Service.find(id);
+          const scr: Scr = await Service.find(topic, id);
           res.status(200).send(scr);
         } catch (e) {
           res.status(404).send(e.message);
@@ -25,13 +26,14 @@ class Router {
     );
 
     router.delete(
-      "/scrs/:id",
+      "/scrs/:topic/:id",
       // checkJwt,
       // jwtAuthz(["delete:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
+          const topic: string = String(req.params.topic);
           const id: string = String(req.params.id);
-          await Service.remove(id);
+          await Service.remove(topic, id);
           res.sendStatus(200);
         } catch (e) {
           res.status(500).send(e.message);
@@ -39,25 +41,30 @@ class Router {
       }
     );
 
-    router.get("/scrs", async (req: express.Request, res: express.Response) => {
-      try {
-        const bbox: string = String(req.query.bbox);
-        const scrs: Scr[] = await Service.findBbox(bbox);
-        res.status(200).send(scrs);
-      } catch (e) {
-        res.status(404).send(e.message);
+    router.get(
+      "/scrs/:topic",
+      async (req: express.Request, res: express.Response) => {
+        try {
+          const topic: string = String(req.params.topic);
+          const bbox: string = String(req.query.bbox);
+          const scrs: Scr[] = await Service.findBbox(topic, bbox);
+          res.status(200).send(scrs);
+        } catch (e) {
+          res.status(404).send(e.message);
+        }
       }
-    });
+    );
 
     router.post(
-      "/scrs",
+      "/scrs/:topic",
       // checkJwt,
       // jwtAuthz(["create:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
+          const topic: string = String(req.params.topic);
           let scr = new ScrDto();
           Object.assign(scr, req.body);
-          const id: string = await Service.create(scr);
+          const id: string = await Service.create(topic, scr);
           res.status(201).send(id);
         } catch (e) {
           res.status(404).send(e.message);
