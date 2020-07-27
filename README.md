@@ -50,7 +50,9 @@ http://localhost:3000/swagger/
 ![Swagger image](images/swagger.png?raw=true)
 
 
-## Spatial Content Record (base version - expected to evolve)
+## Spatial Content Record
+
+Base version of a Spatial Content Record (expected to evolve):
 
 ```js
 GeoPose {
