@@ -1,7 +1,6 @@
 import hyperswarm from "hyperswarm";
 import pump from "pump";
 import crypto from "crypto";
-import chalk from "chalk";
 
 export const swarm = (kappaCore: any, syncTopic: string): any => {
   const discoveryKey = crypto.createHash("sha256").update(syncTopic).digest();

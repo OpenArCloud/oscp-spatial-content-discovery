@@ -21,7 +21,6 @@
     "@types/node": "^13.13.12",
     "@types/request-promise": "^4.1.46",
     "body-parser": "^1.18.3",
-    "chalk": "^4.1.0",
     "class-validator": "^0.12.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
