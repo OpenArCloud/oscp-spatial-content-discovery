@@ -18,6 +18,12 @@ Initial authentication/authorization is provided by [Auth0](https://auth0.com/).
 
 Node 10 (newer version may present issues with Dat framework)
 
+```
+git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
+cd oscp-spatial-content-discovery
+npm install
+```
+
 Create .env file with required params ex.
 
 ```
@@ -26,6 +32,7 @@ AUTH0_ISSUER=https://dev-r3x4eu9z.us.auth0.com/
 AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
 GEOZONE="geo3"
 TOPICS="transit,history,entertainment"
+PORT=3000
 ```
 
 Start the Spatial Content Discovery service (development)
@@ -103,5 +110,5 @@ Documents (OSM elements, observations, etc) have a common format within [kappa-o
 - [x] Create spatial content record via REST API (single)
 - [x] Define base spatial content record (JSON)
 - [x] Multiple topics/themes via separate kappa core instances
-- [ ] Re-integrate Hyperswarm synchronization
+- [x] Re-integrate Hyperswarm synchronization
 - [ ] REST API authentication multi-tenancy

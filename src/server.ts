@@ -1,6 +1,7 @@
 import app from "./app";
+import dotenv from "dotenv";
 
-const port = parseInt(process.env.PORT || "3000");
+const port = parseInt(process.env.PORT);
 
 const server = new app()
   .Start(port)
