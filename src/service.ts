@@ -4,13 +4,12 @@ import { Element } from "./models/osm_json.interface";
 import { BboxDto } from "./models/scr_bbox.dto";
 import { ScrDto } from "./models/scr.dto";
 import { validateOrReject } from "class-validator";
-
 import kappa from "kappa-core";
 import ram from "random-access-memory";
 import memdb from "memdb";
 import Osm from "kappa-osm";
-
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
+import * as Swarm from "./swarm";
 
 dotenv.config();
 
@@ -34,6 +33,8 @@ TOPICS.forEach((topic) => {
       cb(null, ram());
     },
   });
+
+  const swarm = Swarm.swarm(kappaCores[topic], GEOZONE + "_" + topic);
 });
 
 export const find = async (topic: string, id: string): Promise<Scr> => {
