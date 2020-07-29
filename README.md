@@ -59,7 +59,7 @@ http://localhost:3000/swagger/
 
 ## Spatial Content Record
 
-Base version of a Spatial Content Record (expected to evolve):
+GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
 
 ```js
 GeoPose {
