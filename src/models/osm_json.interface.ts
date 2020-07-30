@@ -4,6 +4,7 @@ export interface Tags {
   geopose_qEast: number;
   geopose_qVertical: number;
   geopose_qW: number;
+  tenant: string;
   url: URL;
 }
 

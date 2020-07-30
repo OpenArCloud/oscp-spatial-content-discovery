@@ -35,7 +35,10 @@ export class GeoPoseDto {
 export class ScrDto {
   @IsString()
   @Equals("scr")
-  type: String;
+  type: string;
+
+  @IsString()
+  tenant: string;
 
   geopose: GeoPoseDto;
 

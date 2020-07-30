@@ -1,16 +1,16 @@
 export interface GeoPose {
-  north: Number;
-  east: Number;
-  vertical: Number;
-  qNorth: Number;
-  qEast: Number;
-  qVertical: Number;
-  qW: Number;
+  north: number;
+  east: number;
+  vertical: number;
+  qNorth: number;
+  qEast: number;
+  qVertical: number;
+  qW: number;
 }
 
 export interface Scr {
-  id: String;
-  type: String;
+  id: string;
+  type: string;
   geopose: GeoPose;
   url: URL;
   timestamp: Date;
