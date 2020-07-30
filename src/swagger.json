@@ -9,6 +9,18 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
+
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+
+
   "servers": [
     {
       "url": "/",
@@ -91,7 +103,10 @@
           "404": {
             "description": "Failed"
           }
-        }
+        },
+          "security": [{
+            "bearerAuth": ["create:scrs"]
+          }]
       }
     },
     "/scrs/{topic}/{id}": {
@@ -150,7 +165,10 @@
           "500": {
             "description": "Failed"
           }
-        }
+        },
+        "security": [{
+          "bearerAuth": ["delete:scrs"]
+        }]
       }
     }
   },
@@ -193,6 +211,9 @@
         "url": {
           "type": "string"
         },
+        "tenant": {
+          "type": "string"
+        },
         "timestamp": {
           "type": "string"
         }
@@ -232,7 +253,10 @@
         },
         "url": {
           "type": "string"
-        }
+        },
+        "tenant": {
+          "type": "string"
+        },
       }
     }
   }

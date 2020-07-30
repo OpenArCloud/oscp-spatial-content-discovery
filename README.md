@@ -10,7 +10,7 @@ Baseline implementation of the OSCP Spatial Content Discovery APIs built on the 
 
 The P2P stack is based on components from the [Hypercore protocol](https://hypercore-protocol.org/). The [kappa-osm](https://github.com/digidem/kappa-osm) database builds on [kappa-core](https://github.com/kappa-db/kappa-core), which combines multi-writer append-only logs, [hypercores](https://github.com/mafintosh/hypercore) via [multifeed](https://github.com/kappa-db/multifeed), with materialized views. Spatial queries rely on a Bkd tree materialized view, [unordered-materialized-bkd](https://github.com/digidem/unordered-materialized-bkd).
 
-Initial authentication/authorization is provided by [Auth0](https://auth0.com/). Users are scoped to specific tenants and API actions.
+Authentication/authorization is based on JSON Web Tokens (JWTs) via [OpenID Connect](https://openid.net/connect/). A sample integration with [Auth0](https://auth0.com/) is provided.
 
 
 ## Usage
@@ -63,20 +63,21 @@ GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.o
 
 ```js
 GeoPose {
-  north: Number;
-  east: Number;
-  vertical: Number;
-  qNorth: Number;
-  qEast: Number;
-  qVertical: Number;
-  qW: Number;
+  north: number;
+  east: number;
+  vertical: number;
+  qNorth: number;
+  qEast: number;
+  qVertical: number;
+  qW: number;
 }
 
 Scr {
-  id: String;
-  type: String;
+  id: string;
+  type: string;
   geopose: GeoPose;
   url: URL;
+  tenant: string;
   timestamp: Date;
 }
 ```
@@ -111,4 +112,4 @@ Documents (OSM elements, observations, etc) have a common format within [kappa-o
 - [x] Define base spatial content record (JSON)
 - [x] Multiple topics/themes via separate kappa core instances
 - [x] Re-integrate Hyperswarm synchronization
-- [ ] REST API authentication multi-tenancy
+- [x] REST API authentication multi-tenancy

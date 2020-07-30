@@ -38,6 +38,9 @@ TOPICS.forEach((topic) => {
 });
 
 export const find = async (topic: string, id: string): Promise<Scr> => {
+
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
   const osmGet = new Promise<Element[]>((resolve, reject) => {
     kappaCores[topic].get(id, function (err, nodes) {
       if (err) reject(err);
@@ -66,6 +69,7 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
           qW: +p.tags.geopose_qW,
         },
         url: p.tags.url,
+        tenant: p.tags.tenant,
         timestamp: p.timestamp,
       }));
 
@@ -77,7 +81,10 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
   throw new Error("No record found");
 };
 
-export const remove = async (topic: string, id: string): Promise<void> => {
+export const remove = async (topic: string, id: string, tenant: string): Promise<void> => {
+
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
   const osmGet = new Promise<Element[]>((resolve, reject) => {
     kappaCores[topic].get(id, function (err, nodes) {
       if (err) reject(err);
@@ -90,6 +97,10 @@ export const remove = async (topic: string, id: string): Promise<void> => {
   if (nodes.length > 0) {
     if (nodes[0].deleted) {
       throw new Error("No record found");
+    }
+
+    if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase()) {
+      throw new Error("Invalid tenant");
     }
 
     const osmDel = new Promise((resolve, reject) => {
@@ -114,6 +125,9 @@ export const findBbox = async (
   topic: string,
   bboxStr: string
 ): Promise<Scr[]> => {
+
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
   const bboxArr = bboxStr.split(",");
   let bboxObj = new BboxDto();
   bboxObj.minLongitude = +bboxArr[0];
@@ -164,6 +178,7 @@ export const findBbox = async (
         qW: +p.tags.geopose_qW,
       },
       url: p.tags.url,
+      tenant: p.tags.tenant,
       timestamp: p.timestamp,
     }));
 
@@ -172,11 +187,18 @@ export const findBbox = async (
   return scrs;
 };
 
-export const create = async (topic: string, scr: ScrDto): Promise<string> => {
+export const create = async (topic: string, scr: ScrDto, tenant: string): Promise<string> => {
+
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
   try {
     await validateOrReject(scr);
   } catch (errors) {
     throw new Error("Validation failed");
+  }
+
+  if (tenant.toUpperCase() !== scr.tenant.toUpperCase()) {
+    throw new Error("Invalid tenant");
   }
 
   const node: Element = {
@@ -191,6 +213,7 @@ export const create = async (topic: string, scr: ScrDto): Promise<string> => {
       geopose_qVertical: scr.geopose.qVertical,
       geopose_qW: scr.geopose.qW,
       url: scr.url,
+      tenant: scr.tenant
     },
   };
 
