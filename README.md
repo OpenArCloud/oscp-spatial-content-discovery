@@ -1,8 +1,6 @@
 # oscp-spatial-content-discovery
 OSCP Spatial Content Discovery
 
-See [ISSUES](https://github.com/OpenArCloud/oscp-spatial-content-discovery/issues) for development items.
-
 
 ## Purpose
 
@@ -59,7 +57,7 @@ http://localhost:3000/swagger/
 
 ## Docker
 
-A Dockerfile is included. Ensure that a .env file has been populated.
+A Dockerfile is included. Ensure that an .env file has been populated.
 
 Build Docker image
 
