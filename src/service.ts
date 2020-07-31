@@ -38,7 +38,6 @@ TOPICS.forEach((topic) => {
 });
 
 export const find = async (topic: string, id: string): Promise<Scr> => {
-
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
   const osmGet = new Promise<Element[]>((resolve, reject) => {
@@ -50,39 +49,36 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
 
   const nodes: Element[] = await osmGet;
 
-  if (nodes.length > 0) {
-    if (nodes[0].deleted) {
-      throw new Error("No record found");
-    }
+  if (nodes.length === 0) throw new Error("No record found");
+  if (nodes[0].deleted) throw new Error("No record found");
 
-    const mapResponse = (response: Element[]) =>
-      response.map((p) => ({
-        id: p.id,
-        type: "scr",
-        geopose: {
-          north: +p.lat,
-          east: +p.lon,
-          vertical: +p.tags.geopose_vertical,
-          qNorth: +p.tags.geopose_qNorth,
-          qEast: +p.tags.geopose_qEast,
-          qVertical: +p.tags.geopose_qVertical,
-          qW: +p.tags.geopose_qW,
-        },
-        url: p.tags.url,
-        tenant: p.tags.tenant,
-        timestamp: p.timestamp,
-      }));
+  const mapResponse = (response: Element[]) =>
+    response.map((p) => ({
+      id: p.id,
+      type: "scr",
+      geopose: {
+        north: +p.lat,
+        east: +p.lon,
+        vertical: +p.tags.geopose_vertical,
+        qNorth: +p.tags.geopose_qNorth,
+        qEast: +p.tags.geopose_qEast,
+        qVertical: +p.tags.geopose_qVertical,
+        qW: +p.tags.geopose_qW,
+      },
+      url: p.tags.url,
+      tenant: p.tags.tenant,
+      timestamp: p.timestamp,
+    }));
 
-    const scrs: Scr[] = mapResponse(nodes);
-
-    return scrs[0];
-  }
-
-  throw new Error("No record found");
+  const scrs: Scr[] = mapResponse(nodes);
+  return scrs[0];
 };
 
-export const remove = async (topic: string, id: string, tenant: string): Promise<void> => {
-
+export const remove = async (
+  topic: string,
+  id: string,
+  tenant: string
+): Promise<void> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
   const osmGet = new Promise<Element[]>((resolve, reject) => {
@@ -94,38 +90,30 @@ export const remove = async (topic: string, id: string, tenant: string): Promise
 
   const nodes: Element[] = await osmGet;
 
-  if (nodes.length > 0) {
-    if (nodes[0].deleted) {
-      throw new Error("No record found");
-    }
+  if (nodes.length === 0) throw new Error("No record found");
+  if (nodes[0].deleted) throw new Error("No record found");
+  if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase())
+    throw new Error("Invalid tenant");
 
-    if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase()) {
-      throw new Error("Invalid tenant");
-    }
+  const osmDel = new Promise((resolve, reject) => {
+    kappaCores[topic].del(
+      nodes[0].id,
+      { changeset: nodes[0].changeset },
+      function (err) {
+        if (err) reject(err);
+        else resolve();
+      }
+    );
+  });
 
-    const osmDel = new Promise((resolve, reject) => {
-      kappaCores[topic].del(
-        nodes[0].id,
-        { changeset: nodes[0].changeset },
-        function (err) {
-          if (err) reject(err);
-          else resolve();
-        }
-      );
-    });
-
-    await osmDel;
-    return;
-  }
-
-  throw new Error("No record found to delete");
+  await osmDel;
+  return;
 };
 
 export const findBbox = async (
   topic: string,
   bboxStr: string
 ): Promise<Scr[]> => {
-
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
   const bboxArr = bboxStr.split(",");
@@ -187,18 +175,17 @@ export const findBbox = async (
   return scrs;
 };
 
-export const create = async (topic: string, scr: ScrDto, tenant: string): Promise<string> => {
-
+export const create = async (
+  topic: string,
+  scr: ScrDto,
+  tenant: string
+): Promise<string> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
   try {
     await validateOrReject(scr);
   } catch (errors) {
     throw new Error("Validation failed");
-  }
-
-  if (tenant.toUpperCase() !== scr.tenant.toUpperCase()) {
-    throw new Error("Invalid tenant");
   }
 
   const node: Element = {
@@ -213,7 +200,7 @@ export const create = async (topic: string, scr: ScrDto, tenant: string): Promis
       geopose_qVertical: scr.geopose.qVertical,
       geopose_qW: scr.geopose.qW,
       url: scr.url,
-      tenant: scr.tenant
+      tenant: tenant,
     },
   };
 
@@ -231,4 +218,59 @@ export const create = async (topic: string, scr: ScrDto, tenant: string): Promis
   }
 
   return nodeResp.id;
+};
+
+export const update = async (
+  topic: string,
+  id: string,
+  scr: ScrDto,
+  tenant: string
+): Promise<void> => {
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
+  try {
+    await validateOrReject(scr);
+  } catch (errors) {
+    throw new Error("Validation failed");
+  }
+
+  const osmGet = new Promise<Element[]>((resolve, reject) => {
+    kappaCores[topic].get(id, function (err, nodes) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
+
+  const nodes: Element[] = await osmGet;
+
+  if (nodes.length === 0) throw new Error("No record found");
+  if (nodes[0].deleted) throw new Error("No record found");
+  if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase())
+    throw new Error("Invalid tenant");
+
+  const node: Element = {
+    type: "node",
+    changeset: "abcdef",
+    lon: scr.geopose.east,
+    lat: scr.geopose.north,
+    tags: {
+      geopose_vertical: scr.geopose.vertical,
+      geopose_qNorth: scr.geopose.qNorth,
+      geopose_qEast: scr.geopose.qEast,
+      geopose_qVertical: scr.geopose.qVertical,
+      geopose_qW: scr.geopose.qW,
+      url: scr.url,
+      tenant: tenant,
+    },
+  };
+
+  const osmPut = new Promise<Element>((resolve, reject) => {
+    kappaCores[topic].put(nodes[0].id, node, function (err, nodes) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
+
+  await osmPut;
+  return;
 };
