@@ -113,3 +113,4 @@ Documents (OSM elements, observations, etc) have a common format within [kappa-o
 - [x] Multiple topics/themes via separate kappa core instances
 - [x] Re-integrate Hyperswarm synchronization
 - [x] REST API authentication multi-tenancy
+- [x] Update spatial content record via REST API (single)

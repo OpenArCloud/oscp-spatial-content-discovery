@@ -37,9 +37,6 @@ export class ScrDto {
   @Equals("scr")
   type: string;
 
-  @IsString()
-  tenant: string;
-
   geopose: GeoPoseDto;
 
   @IsUrl()

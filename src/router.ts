@@ -34,7 +34,9 @@ class Router {
       jwtAuthz(["delete:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
-          const tenant: string = String(req['user'][AUTH0_AUDIENCE + '/tenant']);
+          const tenant: string = String(
+            req["user"][AUTH0_AUDIENCE + "/tenant"]
+          );
           const topic: string = String(req.params.topic);
           const id: string = String(req.params.id);
           await Service.remove(topic, id, tenant);
@@ -65,7 +67,9 @@ class Router {
       jwtAuthz(["create:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
-          const tenant: string = String(req['user'][AUTH0_AUDIENCE + '/tenant']);
+          const tenant: string = String(
+            req["user"][AUTH0_AUDIENCE + "/tenant"]
+          );
           const topic: string = String(req.params.topic);
           let scr = new ScrDto();
           Object.assign(scr, req.body);
@@ -73,6 +77,27 @@ class Router {
           res.status(201).send(id);
         } catch (e) {
           res.status(404).send(e.message);
+        }
+      }
+    );
+
+    router.put(
+      "/scrs/:topic/:id",
+      checkJwt,
+      jwtAuthz(["update:scrs"]),
+      async (req: express.Request, res: express.Response) => {
+        try {
+          const tenant: string = String(
+            req["user"][AUTH0_AUDIENCE + "/tenant"]
+          );
+          const topic: string = String(req.params.topic);
+          const id: string = String(req.params.id);
+          let scr = new ScrDto();
+          Object.assign(scr, req.body);
+          await Service.update(topic, id, scr, tenant);
+          res.sendStatus(200);
+        } catch (e) {
+          res.status(500).send(e.message);
         }
       }
     );

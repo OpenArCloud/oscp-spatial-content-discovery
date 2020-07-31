@@ -20,7 +20,6 @@
     }
   },
 
-
   "servers": [
     {
       "url": "/",
@@ -104,9 +103,11 @@
             "description": "Failed"
           }
         },
-          "security": [{
+        "security": [
+          {
             "bearerAuth": ["create:scrs"]
-          }]
+          }
+        ]
       }
     },
     "/scrs/{topic}/{id}": {
@@ -166,9 +167,52 @@
             "description": "Failed"
           }
         },
-        "security": [{
-          "bearerAuth": ["delete:scrs"]
-        }]
+        "security": [
+          {
+            "bearerAuth": ["delete:scrs"]
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update SCR with given ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "SCR id"
+          }
+        ],
+        "requestBody": {
+          "description": "SCR Object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/ScrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Failed"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": ["update:scrs"]
+          }
+        ]
       }
     }
   },
@@ -252,9 +296,6 @@
           }
         },
         "url": {
-          "type": "string"
-        },
-        "tenant": {
           "type": "string"
         },
       }
