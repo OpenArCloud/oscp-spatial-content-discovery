@@ -16,10 +16,6 @@
   "author": "James Jackson",
   "license": "ISC",
   "dependencies": {
-    "@types/express": "^4.17.6",
-    "@types/express-jwt": "0.0.42",
-    "@types/node": "^13.13.12",
-    "@types/request-promise": "^4.1.46",
     "body-parser": "^1.18.3",
     "class-validator": "^0.12.2",
     "cors": "^2.8.5",
@@ -27,6 +23,7 @@
     "express": "^4.16.4",
     "express-jwt": "^6.0.0",
     "express-jwt-authz": "^2.4.1",
+    "helmet": "^3.23.3",
     "hyperswarm": "^2.15.0",
     "jwks-rsa": "^1.8.1",
     "kappa-core": "^6.0.0",
@@ -36,10 +33,15 @@
     "random-access-memory": "^3.1.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
-    "swagger-ui-express": "^4.1.4",
-    "typescript": "3.3.3333"
+    "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/express-jwt": "0.0.42",
+    "@types/helmet": "0.0.47",
+    "@types/node": "^13.13.12",
+    "@types/request-promise": "^4.1.46",
+    "typescript": "3.3.3333",
     "concurrently": "^2.2.0",
     "nodemon": "^2.0.4",
     "prettier": "2.0.5"

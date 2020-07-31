@@ -57,6 +57,23 @@ http://localhost:3000/swagger/
 ![Swagger image](images/swagger.png?raw=true)
 
 
+## Docker
+
+A Dockerfile is included. Ensure that a .env file has been populated.
+
+Build Docker image
+
+```
+docker build -t scd .
+```
+
+Run Docker container
+
+```
+docker run -p 3000:3000 scd
+```
+
+
 ## Spatial Content Record
 
 GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
