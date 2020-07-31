@@ -16,7 +16,7 @@ Authentication/authorization is based on JSON Web Tokens (JWTs) via [OpenID Conn
 ## Usage
 
 
-Node 10 (newer version may present issues with Dat framework)
+Tested on Node 12.18.3
 
 ```
 git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
