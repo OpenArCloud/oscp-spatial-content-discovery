@@ -4,7 +4,6 @@ import * as Service from "./service";
 import { Scr } from "./models/scr.interface";
 import { ScrDto } from "./models/scr.dto";
 import { checkJwt } from "./middleware/authz.middleware";
-import dotenv from "dotenv";
 
 const jwtAuthz = require("express-jwt-authz");
 

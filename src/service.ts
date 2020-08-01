@@ -25,7 +25,7 @@ let kappaCores: IHash = {};
 
 TOPICS.forEach((topic) => {
   kappaCores[topic] = Osm({
-    core: kappa(KAPPA_CORE_DIR + GEOZONE + "_" + topic, {
+    core: kappa(KAPPA_CORE_DIR + "/" + GEOZONE + "_" + topic, {
       valueEncoding: "json",
     }),
     index: memdb(),
