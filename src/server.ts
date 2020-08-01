@@ -1,5 +1,4 @@
 import app from "./app";
-import dotenv from "dotenv";
 
 const port = parseInt(process.env.PORT);
 

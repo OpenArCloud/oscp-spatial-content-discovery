@@ -25,7 +25,7 @@ npm install
 Create .env file with required params ex.
 
 ```
-KAPPA_CORE_DIR="data/"
+KAPPA_CORE_DIR="data"
 AUTH0_ISSUER=https://dev-r3x4eu9z.us.auth0.com/
 AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
 GEOZONE="geo3"
@@ -54,22 +54,6 @@ http://localhost:3000/swagger/
 
 ![Swagger image](images/swagger.png?raw=true)
 
-
-## Docker
-
-A Dockerfile is included. Ensure that an .env file has been populated.
-
-Build Docker image
-
-```
-docker build -t scd .
-```
-
-Run Docker container
-
-```
-docker run -p 3000:3000 scd
-```
 
 
 ## Spatial Content Record
