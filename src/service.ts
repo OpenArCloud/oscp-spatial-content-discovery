@@ -15,7 +15,10 @@ dotenv.config();
 
 const KAPPA_CORE_DIR: string = process.env.KAPPA_CORE_DIR as string;
 const GEOZONE: string = process.env.GEOZONE as string;
-const TOPICS: string[] = process.env.TOPICS.split(",");
+let TOPICS: string[] = process.env.TOPICS.split(",");
+TOPICS = TOPICS.map(function (x) {
+  return x.toLowerCase();
+});
 
 export interface IHash {
   [key: string]: any;
@@ -56,15 +59,7 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
     response.map((p) => ({
       id: p.id,
       type: "scr",
-      geopose: {
-        north: +p.lat,
-        east: +p.lon,
-        vertical: +p.tags.geopose_vertical,
-        qNorth: +p.tags.geopose_qNorth,
-        qEast: +p.tags.geopose_qEast,
-        qVertical: +p.tags.geopose_qVertical,
-        qW: +p.tags.geopose_qW,
-      },
+      geopose: p.tags.geopose,
       url: p.tags.url,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
@@ -156,15 +151,7 @@ export const findBbox = async (
     response.map((p) => ({
       id: p.id,
       type: "scr",
-      geopose: {
-        north: +p.lat,
-        east: +p.lon,
-        vertical: +p.tags.geopose_vertical,
-        qNorth: +p.tags.geopose_qNorth,
-        qEast: +p.tags.geopose_qEast,
-        qVertical: +p.tags.geopose_qVertical,
-        qW: +p.tags.geopose_qW,
-      },
+      geopose: p.tags.geopose,
       url: p.tags.url,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
@@ -194,11 +181,7 @@ export const create = async (
     lon: scr.geopose.east,
     lat: scr.geopose.north,
     tags: {
-      geopose_vertical: scr.geopose.vertical,
-      geopose_qNorth: scr.geopose.qNorth,
-      geopose_qEast: scr.geopose.qEast,
-      geopose_qVertical: scr.geopose.qVertical,
-      geopose_qW: scr.geopose.qW,
+      geopose: scr.geopose,
       url: scr.url,
       tenant: tenant,
     },
@@ -254,11 +237,7 @@ export const update = async (
     lon: scr.geopose.east,
     lat: scr.geopose.north,
     tags: {
-      geopose_vertical: scr.geopose.vertical,
-      geopose_qNorth: scr.geopose.qNorth,
-      geopose_qEast: scr.geopose.qEast,
-      geopose_qVertical: scr.geopose.qVertical,
-      geopose_qW: scr.geopose.qW,
+      geopose: scr.geopose,
       url: scr.url,
       tenant: tenant,
     },
