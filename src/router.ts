@@ -17,8 +17,8 @@ class Router {
       "/scrs/:topic/:id",
       async (req: express.Request, res: express.Response) => {
         try {
-          const topic: string = String(req.params.topic).toLowerCase();
-          const id: string = String(req.params.id);
+          const topic: string = req.params.topic.toLowerCase();
+          const id: string = req.params.id;
           const scr: Scr = await Service.find(topic, id);
           res.status(200).send(scr);
         } catch (e) {
@@ -33,11 +33,9 @@ class Router {
       jwtAuthz(["delete:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
-          const tenant: string = String(
-            req["user"][AUTH0_AUDIENCE + "/tenant"]
-          );
-          const topic: string = String(req.params.topic).toLowerCase();
-          const id: string = String(req.params.id);
+          const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
+          const topic: string = req.params.topic.toLowerCase();
+          const id: string = req.params.id;
           await Service.remove(topic, id, tenant);
           res.sendStatus(200);
         } catch (e) {
@@ -50,7 +48,7 @@ class Router {
       "/scrs/:topic",
       async (req: express.Request, res: express.Response) => {
         try {
-          const topic: string = String(req.params.topic).toLowerCase();
+          const topic: string = req.params.topic.toLowerCase();
           const bbox: string = String(req.query.bbox);
           const scrs: Scr[] = await Service.findBbox(topic, bbox);
           res.status(200).send(scrs);
@@ -66,10 +64,8 @@ class Router {
       jwtAuthz(["create:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
-          const tenant: string = String(
-            req["user"][AUTH0_AUDIENCE + "/tenant"]
-          );
-          const topic: string = String(req.params.topic).toLowerCase();
+          const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
+          const topic: string = req.params.topic.toLowerCase();
           let scr = new ScrDto();
           Object.assign(scr, req.body);
           const id: string = await Service.create(topic, scr, tenant);
@@ -86,11 +82,9 @@ class Router {
       jwtAuthz(["update:scrs"]),
       async (req: express.Request, res: express.Response) => {
         try {
-          const tenant: string = String(
-            req["user"][AUTH0_AUDIENCE + "/tenant"]
-          );
-          const topic: string = String(req.params.topic).toLowerCase();
-          const id: string = String(req.params.id);
+          const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
+          const topic: string = req.params.topic.toLowerCase();
+          const id: string = req.params.id;
           let scr = new ScrDto();
           Object.assign(scr, req.body);
           await Service.update(topic, id, scr, tenant);
