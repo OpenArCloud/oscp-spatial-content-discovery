@@ -76,6 +76,8 @@ export const remove = async (
 ): Promise<void> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
+  if (!tenant) throw new Error("Invalid tenant");
+
   const osmGet = new Promise<Element[]>((resolve, reject) => {
     kappaCores[topic].get(id, function (err, nodes) {
       if (err) reject(err);
@@ -169,6 +171,8 @@ export const create = async (
 ): Promise<string> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
+  if (!tenant) throw new Error("Invalid tenant");
+
   try {
     await validateOrReject(scr);
   } catch (errors) {
@@ -210,6 +214,8 @@ export const update = async (
   tenant: string
 ): Promise<void> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
+  if (!tenant) throw new Error("Invalid tenant");
 
   try {
     await validateOrReject(scr);

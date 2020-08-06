@@ -26,7 +26,7 @@ Create .env file with required params ex.
 
 ```
 KAPPA_CORE_DIR="data"
-AUTH0_ISSUER=https://dev-r3x4eu9z.us.auth0.com/
+AUTH0_ISSUER=https://scd-oscp.us.auth0.com/
 AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
 GEOZONE="geo3"
 TOPICS="transit,history,entertainment"
