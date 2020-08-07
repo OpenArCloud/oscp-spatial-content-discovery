@@ -116,13 +116,13 @@ export const findBbox = async (
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
   if (!bboxStr) throw new Error("Invalid bbox");
 
-  let keywordArr: string[] = []
+  let keywordArr: string[] = [];
 
   if (keywords) {
-  keywordArr = keywords.split(",");
-  keywordArr = keywordArr.map(function (x) {
-    return x.toLowerCase();
-  });
+    keywordArr = keywords.split(",");
+    keywordArr = keywordArr.map(function (x) {
+      return x.toLowerCase();
+    });
   }
 
   const bboxArr = bboxStr.split(",");
@@ -162,8 +162,11 @@ export const findBbox = async (
   let nodes: Element[] = await osmQuery;
 
   if (keywordArr.length > 0) {
-  nodes = nodes.filter((node) => node.tags.keywords);
-  nodes = nodes.filter((node) => node.tags.keywords.filter(x => keywordArr.includes(x)).length > 0);
+    nodes = nodes.filter((node) => node.tags.keywords);
+    nodes = nodes.filter(
+      (node) =>
+        node.tags.keywords.filter((x) => keywordArr.includes(x)).length > 0
+    );
   }
 
   const mapResponse = (response: Element[]) =>
