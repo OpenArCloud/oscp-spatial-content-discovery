@@ -32,7 +32,7 @@
   "paths": {
     "/scrs/{topic}": {
       "get": {
-        "summary": "Get SCRs within given bbox",
+        "summary": "Get SCRs covering h3Index",
         "parameters": [
           {
             "in": "path",
