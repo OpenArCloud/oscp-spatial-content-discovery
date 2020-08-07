@@ -55,6 +55,12 @@ http://localhost:3000/swagger/
 ![Swagger image](images/swagger.png?raw=true)
 
 
+## Search Logic
+
+The query API expects a client to provide a hexagonal coverage area by using an [H3 index](https://eng.uber.com/h3/) ex. precision level 8. This avoids exposing the client's specific location.
+
+![Search image](images/search.png?raw=true)
+
 
 ## Spatial Content Record
 
