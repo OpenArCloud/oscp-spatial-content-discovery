@@ -76,6 +76,7 @@ Scr {
   type: string;
   geopose: GeoPose;
   url: URL;
+  keywords: string[];
   tenant: string;
   timestamp: Date;
 }
