@@ -4,6 +4,7 @@ export interface Tags {
   geopose: GeoPose;
   tenant: string;
   url: URL;
+  keywords?: string[];
 }
 
 export interface Element {

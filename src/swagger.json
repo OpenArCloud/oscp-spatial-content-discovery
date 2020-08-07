@@ -45,6 +45,12 @@
             "name": "bbox",
             "required": true,
             "description": "SCR bbox"
+          },
+          {
+            "in": "query",
+            "name": "keywords",
+            "required": false,
+            "description": "SCR keywords"
           }
         ],
         "responses": {
