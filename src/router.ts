@@ -49,10 +49,10 @@ class Router {
       async (req: express.Request, res: express.Response) => {
         try {
           const topic: string = req.params.topic.toLowerCase();
-          const bbox: string = req.query.bbox as string;
+          const h3Index: string = req.query.h3Index as string;
           const keywords: string = req.query.keywords as string;
 
-          const scrs: Scr[] = await Service.findBbox(topic, bbox, keywords);
+          const scrs: Scr[] = await Service.findHex(topic, h3Index, keywords);
           res.status(200).send(scrs);
         } catch (e) {
           res.status(404).send(e.message);

@@ -10,6 +10,8 @@ import memdb from "memdb";
 import Osm from "kappa-osm";
 import dotenv from "dotenv";
 import * as Swarm from "./swarm";
+import * as h3 from "h3-js";
+import * as turf from "@turf/turf";
 
 dotenv.config();
 
@@ -108,13 +110,18 @@ export const remove = async (
   return;
 };
 
-export const findBbox = async (
+export const findHex = async (
   topic: string,
-  bboxStr: string,
+  h3Index: string,
   keywords: string
 ): Promise<Scr[]> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
-  if (!bboxStr) throw new Error("Invalid bbox");
+
+  if (!h3Index) throw new Error("Invalid h3Index");
+
+  const hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
+  const hexPoly = turf.polygon([hexBoundary]);
+  const bbox = turf.bbox(hexPoly);
 
   let keywordArr: string[] = [];
 
@@ -125,38 +132,14 @@ export const findBbox = async (
     });
   }
 
-  const bboxArr = bboxStr.split(",");
-  let bboxObj = new BboxDto();
-  bboxObj.minLongitude = +bboxArr[0];
-  bboxObj.minLatitude = +bboxArr[1];
-  bboxObj.maxLongitude = +bboxArr[2];
-  bboxObj.maxLatitude = +bboxArr[3];
-
-  try {
-    await validateOrReject(bboxObj);
-  } catch (errors) {
-    throw new Error("Invalid bounding box");
-  }
-
-  if (
-    bboxObj.minLongitude > bboxObj.maxLongitude ||
-    bboxObj.minLatitude > bboxObj.maxLatitude
-  )
-    throw new Error("Invalid bounding box");
-
   const osmQuery = new Promise<Element[]>((resolve, reject) => {
-    kappaCores[topic].query(
-      [
-        bboxObj.minLongitude,
-        bboxObj.minLatitude,
-        bboxObj.maxLongitude,
-        bboxObj.maxLatitude,
-      ],
-      function (err, nodes) {
-        if (err) reject(err);
-        else resolve(nodes);
-      }
-    );
+    kappaCores[topic].query([bbox[0], bbox[1], bbox[2], bbox[3]], function (
+      err,
+      nodes
+    ) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
   });
 
   let nodes: Element[] = await osmQuery;

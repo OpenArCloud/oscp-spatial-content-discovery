@@ -42,9 +42,9 @@
           },
           {
             "in": "query",
-            "name": "bbox",
+            "name": "h3Index",
             "required": true,
-            "description": "SCR bbox"
+            "description": "SCR h3 Index"
           },
           {
             "in": "query",
