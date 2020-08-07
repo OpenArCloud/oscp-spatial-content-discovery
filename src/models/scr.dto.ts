@@ -3,6 +3,7 @@ import {
   IsLongitude,
   IsUrl,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Equals,
@@ -41,4 +42,8 @@ export class ScrDto {
 
   @IsUrl()
   url: URL;
+
+  @IsOptional()
+  @IsString({ each: true })
+  keywords: string[];
 }

@@ -61,6 +61,7 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
       type: "scr",
       geopose: p.tags.geopose,
       url: p.tags.url,
+      keywords: p.tags.keywords,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
     }));
@@ -109,9 +110,20 @@ export const remove = async (
 
 export const findBbox = async (
   topic: string,
-  bboxStr: string
+  bboxStr: string,
+  keywords: string
 ): Promise<Scr[]> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+  if (!bboxStr) throw new Error("Invalid bbox");
+
+  let keywordArr: string[] = []
+
+  if (keywords) {
+  keywordArr = keywords.split(",");
+  keywordArr = keywordArr.map(function (x) {
+    return x.toLowerCase();
+  });
+  }
 
   const bboxArr = bboxStr.split(",");
   let bboxObj = new BboxDto();
@@ -147,7 +159,12 @@ export const findBbox = async (
     );
   });
 
-  const nodes: Element[] = await osmQuery;
+  let nodes: Element[] = await osmQuery;
+
+  if (keywordArr.length > 0) {
+  nodes = nodes.filter((node) => node.tags.keywords);
+  nodes = nodes.filter((node) => node.tags.keywords.filter(x => keywordArr.includes(x)).length > 0);
+  }
 
   const mapResponse = (response: Element[]) =>
     response.map((p) => ({
@@ -155,6 +172,7 @@ export const findBbox = async (
       type: "scr",
       geopose: p.tags.geopose,
       url: p.tags.url,
+      keywords: p.tags.keywords,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
     }));
@@ -187,6 +205,7 @@ export const create = async (
     tags: {
       geopose: scr.geopose,
       url: scr.url,
+      keywords: scr.keywords,
       tenant: tenant,
     },
   };
@@ -245,6 +264,7 @@ export const update = async (
     tags: {
       geopose: scr.geopose,
       url: scr.url,
+      keywords: scr.keywords,
       tenant: tenant,
     },
   };

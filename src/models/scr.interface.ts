@@ -13,5 +13,6 @@ export interface Scr {
   type: string;
   geopose: GeoPose;
   url: URL;
+  keywords?: string[];
   timestamp: Date;
 }
