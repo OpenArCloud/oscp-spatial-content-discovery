@@ -4,6 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "./swagger.json";
 import * as bodyParser from "body-parser";
 import helmet from "helmet";
+import cors from "cors";
 
 import { errorHandler } from "./middleware/error.middleware";
 import { notFoundHandler } from "./middleware/notFound.middleware";
@@ -15,6 +16,7 @@ class App {
     this.httpServer = express();
 
     this.httpServer.use(helmet());
+    this.httpServer.use(cors());
     this.httpServer.use(bodyParser.urlencoded({ extended: true }));
     this.httpServer.use(bodyParser.json());
 
