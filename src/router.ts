@@ -1,5 +1,4 @@
 import * as express from "express";
-import cors from "cors";
 import * as Service from "./service";
 import { Scr } from "./models/scr.interface";
 import { ScrDto } from "./models/scr.dto";
@@ -97,7 +96,6 @@ class Router {
       }
     );
 
-    router.options("*", cors());
     server.use("/", router);
   }
 }
