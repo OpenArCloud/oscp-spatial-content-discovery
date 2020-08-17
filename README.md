@@ -62,9 +62,18 @@ The query API expects a client to provide a hexagonal coverage area by using an 
 ![Search image](images/search.png?raw=true)
 
 
-## Spatial Content Record (SCR)
+## API Versioning
 
 Current version: 1.0
+
+The API version can be specified by the HTTP Accept header using a vendor-specific media type as per [RFC4288](https://tools.ietf.org/html/rfc4288):
+
+```
+application/vnd.oscp+json; version=1.0;
+```
+
+
+## Spatial Content Record (SCR)
 
 GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
 
