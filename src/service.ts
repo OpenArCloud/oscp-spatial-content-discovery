@@ -1,7 +1,6 @@
 import { Scr } from "./models/scr.interface";
 import request from "request-promise";
 import { Element } from "./models/osm_json.interface";
-import { BboxDto } from "./models/scr_bbox.dto";
 import { ScrDto } from "./models/scr.dto";
 import { validateOrReject } from "class-validator";
 import kappa from "kappa-core";
@@ -12,8 +11,10 @@ import dotenv from "dotenv";
 import * as Swarm from "./swarm";
 import * as h3 from "h3-js";
 import * as turf from "@turf/turf";
+import { Global } from "./global";
 
 dotenv.config();
+
 
 const KAPPA_CORE_DIR: string = process.env.KAPPA_CORE_DIR as string;
 const GEOZONE: string = process.env.GEOZONE as string;
@@ -60,10 +61,8 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
   const mapResponse = (response: Element[]) =>
     response.map((p) => ({
       id: p.id,
-      type: "scr",
-      geopose: p.tags.geopose,
-      url: p.tags.url,
-      keywords: p.tags.keywords,
+      type: p.tags.type,
+      content: p.tags.content,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
     }));
@@ -145,20 +144,18 @@ export const findHex = async (
   let nodes: Element[] = await osmQuery;
 
   if (keywordArr.length > 0) {
-    nodes = nodes.filter((node) => node.tags.keywords);
+    nodes = nodes.filter((node) => node.tags.content.keywords);
     nodes = nodes.filter(
       (node) =>
-        node.tags.keywords.filter((x) => keywordArr.includes(x)).length > 0
+        node.tags.content.keywords.filter((x) => keywordArr.includes(x)).length > 0
     );
   }
 
   const mapResponse = (response: Element[]) =>
     response.map((p) => ({
       id: p.id,
-      type: "scr",
-      geopose: p.tags.geopose,
-      url: p.tags.url,
-      keywords: p.tags.keywords,
+      type: p.tags.type,
+      content: p.tags.content,
       tenant: p.tags.tenant,
       timestamp: p.timestamp,
     }));
@@ -186,13 +183,13 @@ export const create = async (
   const node: Element = {
     type: "node",
     changeset: "abcdef",
-    lon: scr.geopose.east,
-    lat: scr.geopose.north,
+    lon: scr.content.geopose.east,
+    lat: scr.content.geopose.north,
     tags: {
-      geopose: scr.geopose,
-      url: scr.url,
-      keywords: scr.keywords,
+      type: scr.type,
+      content: scr.content,
       tenant: tenant,
+      version: Global.scdVersion
     },
   };
 
@@ -245,13 +242,13 @@ export const update = async (
   const node: Element = {
     type: "node",
     changeset: "abcdef",
-    lon: scr.geopose.east,
-    lat: scr.geopose.north,
+    lon: scr.content.geopose.east,
+    lat: scr.content.geopose.north,
     tags: {
-      geopose: scr.geopose,
-      url: scr.url,
-      keywords: scr.keywords,
+      type: scr.type,
+      content: scr.content,
       tenant: tenant,
+      version: Global.scdVersion
     },
   };
 
