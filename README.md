@@ -62,12 +62,14 @@ The query API expects a client to provide a hexagonal coverage area by using an 
 ![Search image](images/search.png?raw=true)
 
 
-## Spatial Content Record
+## Spatial Content Record (SCR)
+
+Current version: 1.0
 
 GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
 
 ```js
-GeoPose {
+export interface GeoPose {
   north: number;
   east: number;
   vertical: number;
@@ -77,12 +79,22 @@ GeoPose {
   qW: number;
 }
 
-Scr {
+export interface Content {
+  id: string;
+  type: string;
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  url: URL;
+  geopose: GeoPose;
+  size?: number;
+  bbox?: string;
+}
+
+export interface Scr {
   id: string;
   type: string;
-  geopose: GeoPose;
-  url: URL;
-  keywords: string[];
+  content: Content;
   tenant: string;
   timestamp: Date;
 }
@@ -107,16 +119,3 @@ Documents (OSM elements, observations, etc) have a common format within [kappa-o
   }
 ```
 
-
-## Release 0 Status
-
-- [x] Read specific spatial content record via REST API 
-- [x] REST API authentication
-- [x] Read (bbox search) spatial content records via REST API
-- [x] Delete spatial content record via REST API (single)
-- [x] Create spatial content record via REST API (single)
-- [x] Define base spatial content record (JSON)
-- [x] Multiple topics/themes via separate kappa core instances
-- [x] Re-integrate Hyperswarm synchronization
-- [x] REST API authentication multi-tenancy
-- [x] Update spatial content record via REST API (single)

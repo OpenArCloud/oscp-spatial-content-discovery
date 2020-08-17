@@ -1,10 +1,10 @@
-import { GeoPose } from "./scr.interface";
+import { Content } from "./scr.interface";
 
 export interface Tags {
-  geopose: GeoPose;
+  type: string;
+  content: Content;
   tenant: string;
-  url: URL;
-  keywords?: string[];
+  version: string;
 }
 
 export interface Element {

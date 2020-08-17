@@ -3,6 +3,7 @@ import * as Service from "./service";
 import { Scr } from "./models/scr.interface";
 import { ScrDto } from "./models/scr.dto";
 import { checkJwt } from "./middleware/authz.middleware";
+import { Global } from "./global";
 
 const jwtAuthz = require("express-jwt-authz");
 
@@ -19,7 +20,7 @@ class Router {
           const topic: string = req.params.topic.toLowerCase();
           const id: string = req.params.id;
           const scr: Scr = await Service.find(topic, id);
-          res.status(200).send(scr);
+          res.status(200).type('application/vnd.oscp+json; version=' + Global.scdVersion).send(scr);
         } catch (e) {
           res.status(404).send(e.message);
         }
@@ -47,12 +48,18 @@ class Router {
       "/scrs/:topic",
       async (req: express.Request, res: express.Response) => {
         try {
+
+          // if(req.accepts('application/vnd.oscp+json; version=1.0')) {
+          // console.log('valid version');
+          // }
+
           const topic: string = req.params.topic.toLowerCase();
           const h3Index: string = req.query.h3Index as string;
           const keywords: string = req.query.keywords as string;
 
           const scrs: Scr[] = await Service.findHex(topic, h3Index, keywords);
-          res.status(200).send(scrs);
+          res.status(200).type('application/vnd.oscp+json; version=' + Global.scdVersion).send(scrs);
+
         } catch (e) {
           res.status(404).send(e.message);
         }

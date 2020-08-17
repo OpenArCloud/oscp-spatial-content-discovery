@@ -8,11 +8,22 @@ export interface GeoPose {
   qW: number;
 }
 
+export interface Content {
+  id: string;
+  type: string;
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  url: URL;
+  geopose: GeoPose;
+  size?: number;
+  bbox?: string;
+}
+
 export interface Scr {
   id: string;
   type: string;
-  geopose: GeoPose;
-  url: URL;
-  keywords?: string[];
+  content: Content;
+  tenant: string;
   timestamp: Date;
 }
