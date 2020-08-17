@@ -223,6 +223,67 @@
     }
   },
   "definitions": {
+    "GeoPose": {
+      "type": "object",
+      "properties": {
+        "north": {
+          "type": "number"
+        },
+        "east": {
+          "type": "number"
+        },
+        "vertical": {
+          "type": "number"
+        },
+        "qNorth": {
+          "type": "number"
+        },
+        "qEast": {
+          "type": "number"
+        },
+        "qVertical": {
+          "type": "number"
+        },
+        "qW": {
+          "type": "number"
+        }
+      }
+    },
+    "Content": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "url": {
+          "type": "string"
+        },
+        "geopose": {
+          "$ref": "#/definitions/GeoPose"
+        },
+        "size": {
+          "type": "number"
+        },
+        "bbox": {
+          "type": "string"
+        }
+      }
+    },
     "Scr": {
       "type": "object",
       "properties": {
@@ -232,34 +293,8 @@
         "type": {
           "type": "string"
         },
-        "geopose": {
-          "type": "object",
-          "properties": {
-            "north": {
-              "type": "number"
-            },
-            "east": {
-              "type": "number"
-            },
-            "vertical": {
-              "type": "number"
-            },
-            "qNorth": {
-              "type": "number"
-            },
-            "qEast": {
-              "type": "number"
-            },
-            "qVertical": {
-              "type": "number"
-            },
-            "qW": {
-              "type": "number"
-            }
-          }
-        },
-        "url": {
-          "type": "string"
+        "content": {
+          "$ref": "#/definitions/Content"
         },
         "tenant": {
           "type": "string"
@@ -275,35 +310,9 @@
         "type": {
           "type": "string"
         },
-        "geopose": {
-          "type": "object",
-          "properties": {
-            "north": {
-              "type": "number"
-            },
-            "east": {
-              "type": "number"
-            },
-            "vertical": {
-              "type": "number"
-            },
-            "qNorth": {
-              "type": "number"
-            },
-            "qEast": {
-              "type": "number"
-            },
-            "qVertical": {
-              "type": "number"
-            },
-            "qW": {
-              "type": "number"
-            }
-          }
+        "content": {
+          "$ref": "#/definitions/Content"
         },
-        "url": {
-          "type": "string"
-        }
       }
     }
   }
