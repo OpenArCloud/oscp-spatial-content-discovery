@@ -45,6 +45,21 @@ class Router {
       }
     );
 
+    // router.delete(
+    //   "/scrs/:topic/:id",
+    //   async (req: express.Request, res: express.Response) => {
+    //     try {
+    //       const tenant: string = "noauthtest";
+    //       const topic: string = req.params.topic.toLowerCase();
+    //       const id: string = req.params.id;
+    //       await Service.remove(topic, id, tenant);
+    //       res.sendStatus(200);
+    //     } catch (e) {
+    //       res.status(500).send(e.message);
+    //     }
+    //   }
+    // );
+
     router.get(
       "/scrs/:topic",
       async (req: express.Request, res: express.Response) => {
@@ -84,6 +99,21 @@ class Router {
       }
     );
 
+    // router.post(
+    //   "/scrs/:topic",
+    //   async (req: express.Request, res: express.Response) => {
+    //     try {
+    //       const tenant: string = "noauthtest";
+    //       const topic: string = req.params.topic.toLowerCase();
+    //       const scr = plainToClass(ScrDto, req.body);
+    //       const id: string = await Service.create(topic, scr, tenant);
+    //       res.status(201).send(id);
+    //     } catch (e) {
+    //       res.status(404).send(e.message);
+    //     }
+    //   }
+    // );
+
     router.put(
       "/scrs/:topic/:id",
       checkJwt,
@@ -101,6 +131,22 @@ class Router {
         }
       }
     );
+
+    // router.put(
+    //   "/scrs/:topic/:id",
+    //   async (req: express.Request, res: express.Response) => {
+    //     try {
+    //       const tenant: string = "noauthtest";
+    //       const topic: string = req.params.topic.toLowerCase();
+    //       const id: string = req.params.id;
+    //       const scr = plainToClass(ScrDto, req.body);
+    //       await Service.update(topic, id, scr, tenant);
+    //       res.sendStatus(200);
+    //     } catch (e) {
+    //       res.status(500).send(e.message);
+    //     }
+    //   }
+    // );
 
     server.use("/", router);
   }
