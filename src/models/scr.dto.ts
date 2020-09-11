@@ -1,3 +1,5 @@
+import { Type } from "class-transformer";
+
 import {
   IsLatitude,
   IsLongitude,
@@ -57,6 +59,7 @@ export class ContentDto {
   url: URL;
 
   @ValidateNested()
+  @Type(() => GeoPoseDto)
   geopose: GeoPoseDto;
 
   @IsNumber()
@@ -74,6 +77,7 @@ export class ScrDto {
   type: string;
 
   @ValidateNested()
+  @Type(() => ContentDto)
   content: ContentDto;
 
 }
