@@ -4,6 +4,7 @@ import { Scr } from "./models/scr.interface";
 import { ScrDto } from "./models/scr.dto";
 import { checkJwt } from "./middleware/authz.middleware";
 import { Global } from "./global";
+import { plainToClass } from "class-transformer";
 
 const jwtAuthz = require("express-jwt-authz");
 
@@ -74,8 +75,7 @@ class Router {
         try {
           const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
           const topic: string = req.params.topic.toLowerCase();
-          let scr = new ScrDto();
-          Object.assign(scr, req.body);
+          const scr = plainToClass(ScrDto, req.body);
           const id: string = await Service.create(topic, scr, tenant);
           res.status(201).send(id);
         } catch (e) {
@@ -93,8 +93,7 @@ class Router {
           const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
           const topic: string = req.params.topic.toLowerCase();
           const id: string = req.params.id;
-          let scr = new ScrDto();
-          Object.assign(scr, req.body);
+          const scr = plainToClass(ScrDto, req.body);
           await Service.update(topic, id, scr, tenant);
           res.sendStatus(200);
         } catch (e) {
