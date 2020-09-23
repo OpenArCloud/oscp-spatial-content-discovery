@@ -128,3 +128,6 @@ Documents (OSM elements, observations, etc) have a common format within [kappa-o
   }
 ```
 
+## Configuring a Reference Auth Service
+
+To configure Auth0 as a reference auth service please see [Auth0 for SSD](auth0_scd.md).
