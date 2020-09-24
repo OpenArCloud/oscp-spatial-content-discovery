@@ -79,13 +79,10 @@ GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.o
 
 ```js
 export interface GeoPose {
-  north: number;
-  east: number;
-  vertical: number;
-  qNorth: number;
-  qEast: number;
-  qVertical: number;
-  qW: number;
+  longitude: number;
+  latitude: number;
+  ellipsoidHeight: number;
+  quaternion: number[];
 }
 
 export interface Content {

@@ -183,8 +183,8 @@ export const create = async (
   const node: Element = {
     type: "node",
     changeset: "abcdef",
-    lon: scr.content.geopose.east,
-    lat: scr.content.geopose.north,
+    lon: scr.content.geopose.longitude,
+    lat: scr.content.geopose.latitude,
     tags: {
       type: scr.type,
       content: scr.content,
@@ -242,8 +242,8 @@ export const update = async (
   const node: Element = {
     type: "node",
     changeset: "abcdef",
-    lon: scr.content.geopose.east,
-    lat: scr.content.geopose.north,
+    lon: scr.content.geopose.longitude,
+    lat: scr.content.geopose.latitude,
     tags: {
       type: scr.type,
       content: scr.content,

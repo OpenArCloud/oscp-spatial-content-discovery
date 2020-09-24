@@ -226,27 +226,23 @@
     "GeoPose": {
       "type": "object",
       "properties": {
-        "north": {
+        "longitude": {
           "type": "number"
         },
-        "east": {
+        "latitude": {
           "type": "number"
         },
-        "vertical": {
+        "ellipsoidHeight": {
           "type": "number"
         },
-        "qNorth": {
-          "type": "number"
+        "quaternion": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4
         },
-        "qEast": {
-          "type": "number"
-        },
-        "qVertical": {
-          "type": "number"
-        },
-        "qW": {
-          "type": "number"
-        }
       }
     },
     "Content": {

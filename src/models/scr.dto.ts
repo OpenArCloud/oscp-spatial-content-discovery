@@ -1,6 +1,8 @@
 import { Type } from "class-transformer";
 
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
   IsLatitude,
   IsLongitude,
   IsUrl,
@@ -13,27 +15,21 @@ import {
 } from "class-validator";
 
 export class GeoPoseDto {
-  @IsLatitude()
-  north: number;
 
   @IsLongitude()
-  east: number;
+  longitude: number;
+
+  @IsLatitude()
+  latitude: number;
 
   @IsNumber()
-  @IsPositive()
-  vertical: number;
+  ellipsoidHeight: number;
 
-  @IsNumber()
-  qNorth: number;
+  @IsNumber({},{each: true})
+  @ArrayMaxSize(4)
+  @ArrayMinSize(4)
+  quaternion: number[];
 
-  @IsNumber()
-  qEast: number;
-
-  @IsNumber()
-  qVertical: number;
-
-  @IsNumber()
-  qW: number;
 }
 
 export class ContentDto {
