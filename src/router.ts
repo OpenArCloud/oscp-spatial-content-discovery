@@ -15,6 +15,25 @@ class Router {
     const router = express.Router();
 
     router.get(
+      "/tenant/scrs/:topic",
+      checkJwt,
+      jwtAuthz(["read:scrs"]),
+      async (req: express.Request, res: express.Response) => {
+        try {
+          const tenant: string = req["user"][AUTH0_AUDIENCE + "/tenant"];
+          const topic: string = req.params.topic.toLowerCase();
+          const scrs: Scr[] = await Service.findAllTenant(tenant, topic);
+          res
+            .status(200)
+            .type("application/vnd.oscp+json; version=" + Global.scdVersion)
+            .send(scrs);
+        } catch (e) {
+          res.status(404).send(e.message);
+        }
+      }
+    );
+
+    router.get(
       "/scrs/:topic/:id",
       async (req: express.Request, res: express.Response) => {
         try {
