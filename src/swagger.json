@@ -220,6 +220,42 @@
           }
         ]
       }
+    },
+    "/tenant/scrs/{topic}": {
+      "get": {
+        "summary": "Get all own SCRs for tenant",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "description": "SCR topic"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Scr"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Failed"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": ["read:scrs"]
+          }
+        ]
+      }
     }
   },
   "definitions": {

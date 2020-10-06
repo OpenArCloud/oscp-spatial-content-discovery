@@ -165,6 +165,44 @@ export const findHex = async (
   return scrs;
 };
 
+export const findAllTenant = async (
+  tenant: string,
+  topic: string
+): Promise<Scr[]> => {
+
+  if (!tenant) throw new Error("Invalid tenant");
+  if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
+  const osmQuery = new Promise<Element[]>((resolve, reject) => {
+    kappaCores[topic].query([-180, -90, 180, 90], function (
+      err,
+      nodes
+    ) {
+      if (err) reject(err);
+      else resolve(nodes);
+    });
+  });
+
+  const elements: Element[] = await osmQuery;
+
+  const nodes = elements.filter((element) => element.type === "node");
+
+  const nodesAllTenant = nodes.filter((element) => element.tags.tenant === tenant);
+
+  const mapResponse = (response: Element[]) =>
+    response.map((p) => ({
+      id: p.id,
+      type: p.tags.type,
+      content: p.tags.content,
+      tenant: p.tags.tenant,
+      timestamp: p.timestamp,
+    }));
+
+  const scrs: Scr[] = mapResponse(nodesAllTenant);
+
+  return scrs;
+};
+
 export const create = async (
   topic: string,
   scr: ScrDto,
