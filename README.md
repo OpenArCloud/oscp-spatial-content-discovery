@@ -85,13 +85,18 @@ export interface GeoPose {
   quaternion: number[];
 }
 
+export interface Ref {
+  contentType: string; //ex. "model/gltf+json"
+  url: URL;
+}
+
 export interface Content {
   id: string; //tenant supplied reference ID
   type: string; //high-level OSCP type
   title: string;
   description?: string;
   keywords?: string[];
-  url: URL;
+  refs: Ref[];
   geopose: GeoPose;
   size?: number; 
   bbox?: string; 
