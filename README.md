@@ -86,23 +86,23 @@ export interface GeoPose {
 }
 
 export interface Content {
-  id: string;
-  type: string;
-  title?: string;
+  id: string; //tenant supplied reference ID
+  type: string; //high-level OSCP type
+  title: string;
   description?: string;
   keywords?: string[];
   url: URL;
   geopose: GeoPose;
-  size?: number;
-  bbox?: string;
+  size?: number; 
+  bbox?: string; 
 }
 
 export interface Scr {
-  id: string;
-  type: string;
+  id: string; //platform generated SCR ID
+  type: string; //record type, SCR is currently the only valid type
   content: Content;
-  tenant: string;
-  timestamp: Date;
+  tenant: string; //tenant or content owner, populated by platform based on auth
+  timestamp: Date; //platform generated timestamp
 }
 ```
 
