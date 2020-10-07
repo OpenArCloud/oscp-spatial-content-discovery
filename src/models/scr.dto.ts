@@ -32,6 +32,14 @@ export class GeoPoseDto {
 
 }
 
+export class RefDto {
+  @IsString() 
+  contentType: string;
+
+  @IsUrl()
+  url: URL;
+}
+
 export class ContentDto {
   @IsString()  
   id: string;
@@ -40,8 +48,7 @@ export class ContentDto {
   type: string;
 
   @IsString()
-  @IsOptional()
-  title?: string;
+  title: string;
 
   @IsString()
   @IsOptional()
@@ -51,8 +58,9 @@ export class ContentDto {
   @IsString({ each: true })
   keywords?: string[];
 
-  @IsUrl()
-  url: URL;
+  @ValidateNested()
+  @Type(() => RefDto)
+  refs: RefDto[];
 
   @ValidateNested()
   @Type(() => GeoPoseDto)

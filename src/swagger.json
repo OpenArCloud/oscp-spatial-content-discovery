@@ -281,6 +281,17 @@
         },
       }
     },
+    "Ref": {
+      "type": "object",
+      "properties": {
+        "contentType": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
     "Content": {
       "type": "object",
       "properties": {
@@ -302,8 +313,11 @@
             "type": "string"
           }
         },
-        "url": {
-          "type": "string"
+        "refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ref"
+          }
         },
         "geopose": {
           "$ref": "#/definitions/GeoPose"
