@@ -5,13 +5,18 @@ export interface GeoPose {
   quaternion: number[];
 }
 
+export interface Ref {
+  contentType: string;
+  url: URL;
+}
+
 export interface Content {
   id: string;
   type: string;
-  title?: string;
+  title: string;
   description?: string;
   keywords?: string[];
-  url: URL;
+  refs: Ref[];
   geopose: GeoPose;
   size?: number;
   bbox?: string;

@@ -99,7 +99,7 @@ export interface Content {
 
 export interface Scr {
   id: string; //platform generated SCR ID
-  type: string; //record type, SCR is currently the only valid type
+  type: string; //record type, "scr" is currently the only valid type
   content: Content;
   tenant: string; //tenant or content owner, populated by platform based on auth
   timestamp: Date; //platform generated timestamp
