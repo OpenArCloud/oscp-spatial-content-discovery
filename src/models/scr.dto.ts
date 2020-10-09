@@ -3,6 +3,8 @@ import { Type } from "class-transformer";
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  ArrayNotEmpty,
+  IsDefined,
   IsLatitude,
   IsLongitude,
   IsUrl,
@@ -59,10 +61,13 @@ export class ContentDto {
   keywords?: string[];
 
   @ValidateNested()
+  @IsDefined()
+  @ArrayNotEmpty()
   @Type(() => RefDto)
   refs: RefDto[];
 
   @ValidateNested()
+  @IsDefined()
   @Type(() => GeoPoseDto)
   geopose: GeoPoseDto;
 
