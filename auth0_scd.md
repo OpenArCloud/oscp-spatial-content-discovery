@@ -26,7 +26,7 @@
 
 ```
   function (user, context, callback) {
-    context.accessToken['<AUTH0_AUDIENCE>/' + 'tenant'] = user.app_metadata.tenant;
+    context.accessToken['<AUTH0_AUDIENCE>/tenant'] = user.app_metadata.tenant;
     callback(null, user, context);
   }
 ```
