@@ -96,6 +96,7 @@ export interface Content {
   title: string;
   description?: string;
   keywords?: string[];
+  placekey?: string;
   refs: Ref[];
   geopose: GeoPose;
   size?: number; 

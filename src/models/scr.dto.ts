@@ -17,7 +17,6 @@ import {
 } from "class-validator";
 
 export class GeoPoseDto {
-
   @IsLongitude()
   longitude: number;
 
@@ -27,57 +26,60 @@ export class GeoPoseDto {
   @IsNumber()
   ellipsoidHeight: number;
 
-  @IsNumber({},{each: true})
+  @IsNumber({}, { each: true })
   @ArrayMaxSize(4)
   @ArrayMinSize(4)
   quaternion: number[];
-
 }
 
 export class RefDto {
-  @IsString() 
+  @IsString()
   contentType: string;
 
   @IsUrl()
-  url: URL;
+  url: URL;
 }
 
 export class ContentDto {
-  @IsString()  
-  id: string;
+  @IsString()
+  id: string;
 
   @IsString()
-  type: string;
+  type: string;
 
   @IsString()
-  title: string;
+  title: string;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  description?: string;
 
   @IsOptional()
   @IsString({ each: true })
-  keywords?: string[];
+  keywords?: string[];
+
+  @IsString()
+  @IsOptional()
+  placekey?: string;
 
   @ValidateNested()
   @IsDefined()
   @ArrayNotEmpty()
   @Type(() => RefDto)
-  refs: RefDto[];
+  refs: RefDto[];
 
   @ValidateNested()
   @IsDefined()
   @Type(() => GeoPoseDto)
-  geopose: GeoPoseDto;
+  geopose: GeoPoseDto;
 
   @IsNumber()
   @IsOptional()
-  size?: number;
+  size?: number;
 
   @IsString()
   @IsOptional()
-  bbox?: string;
+  bbox?: string;
 }
 
 export class ScrDto {
@@ -88,5 +90,4 @@ export class ScrDto {
   @ValidateNested()
   @Type(() => ContentDto)
   content: ContentDto;
-
 }

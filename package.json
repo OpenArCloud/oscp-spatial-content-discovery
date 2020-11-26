@@ -16,6 +16,7 @@
   "author": "James Jackson",
   "license": "ISC",
   "dependencies": {
+    "@placekey/placekey": "^1.0.1",
     "@turf/turf": "^5.1.6",
     "body-parser": "^1.18.3",
     "class-transformer": "^0.3.1",

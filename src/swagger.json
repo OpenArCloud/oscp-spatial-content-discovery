@@ -43,8 +43,14 @@
           {
             "in": "query",
             "name": "h3Index",
-            "required": true,
+            "required": false,
             "description": "SCR h3 Index"
+          },
+          {
+            "in": "query",
+            "name": "placekey",
+            "required": false,
+            "description": "SCR PlaceKey"
           },
           {
             "in": "query",
@@ -278,7 +284,7 @@
           },
           "minItems": 4,
           "maxItems": 4
-        },
+        }
       }
     },
     "Ref": {
@@ -358,7 +364,7 @@
         },
         "content": {
           "$ref": "#/definitions/Content"
-        },
+        }
       }
     }
   }
