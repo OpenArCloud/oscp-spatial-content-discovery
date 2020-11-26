@@ -12,9 +12,9 @@ import * as Swarm from "./swarm";
 import * as h3 from "h3-js";
 import * as turf from "@turf/turf";
 import { Global } from "./global";
+import { placekeyToH3, h3ToPlacekey, placekeyToGeo } from "@placekey/placekey";
 
 dotenv.config();
-
 
 const KAPPA_CORE_DIR: string = process.env.KAPPA_CORE_DIR as string;
 const GEOZONE: string = process.env.GEOZONE as string;
@@ -112,15 +112,26 @@ export const remove = async (
 export const findHex = async (
   topic: string,
   h3Index: string,
-  keywords: string
+  keywords: string,
+  placekey: string
 ): Promise<Scr[]> => {
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
+
+  let placekeyComponents: string[];
+
+  if (placekey) {
+    placekeyComponents = placekey.split("@");
+    h3Index = placekeyToH3("@" + placekeyComponents[1]);
+  }
 
   if (!h3Index) throw new Error("Invalid h3Index");
 
   const hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
   const hexPoly = turf.polygon([hexBoundary]);
-  const bbox = turf.bbox(hexPoly);
+
+  const scaledPoly = turf.transformScale(hexPoly, 2);
+
+  const bbox = turf.bbox(scaledPoly);
 
   let keywordArr: string[] = [];
 
@@ -143,11 +154,18 @@ export const findHex = async (
 
   let nodes: Element[] = await osmQuery;
 
+  if (placekey) {
+    if (placekeyComponents[0].length > 0) {
+      nodes = nodes.filter((node) => node.tags.content.placekey === placekey);
+    }
+  }
+
   if (keywordArr.length > 0) {
     nodes = nodes.filter((node) => node.tags.content.keywords);
     nodes = nodes.filter(
       (node) =>
-        node.tags.content.keywords.filter((x) => keywordArr.includes(x)).length > 0
+        node.tags.content.keywords.filter((x) => keywordArr.includes(x))
+          .length > 0
     );
   }
 
@@ -169,15 +187,11 @@ export const findAllTenant = async (
   tenant: string,
   topic: string
 ): Promise<Scr[]> => {
-
   if (!tenant) throw new Error("Invalid tenant");
   if (!TOPICS.includes(topic)) throw new Error("Invalid topic");
 
   const osmQuery = new Promise<Element[]>((resolve, reject) => {
-    kappaCores[topic].query([-180, -90, 180, 90], function (
-      err,
-      nodes
-    ) {
+    kappaCores[topic].query([-180, -90, 180, 90], function (err, nodes) {
       if (err) reject(err);
       else resolve(nodes);
     });
@@ -187,7 +201,9 @@ export const findAllTenant = async (
 
   const nodes = elements.filter((element) => element.type === "node");
 
-  const nodesAllTenant = nodes.filter((element) => element.tags.tenant === tenant);
+  const nodesAllTenant = nodes.filter(
+    (element) => element.tags.tenant === tenant
+  );
 
   const mapResponse = (response: Element[]) =>
     response.map((p) => ({
@@ -227,7 +243,7 @@ export const create = async (
       type: scr.type,
       content: scr.content,
       tenant: tenant,
-      version: Global.scdVersion
+      version: Global.scdVersion,
     },
   };
 
@@ -286,7 +302,7 @@ export const update = async (
       type: scr.type,
       content: scr.content,
       tenant: tenant,
-      version: Global.scdVersion
+      version: Global.scdVersion,
     },
   };
 

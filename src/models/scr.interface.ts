@@ -7,19 +7,20 @@ export interface GeoPose {
 
 export interface Ref {
   contentType: string;
-  url: URL;
+  url: URL;
 }
 
 export interface Content {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  keywords?: string[];
+  id: string;
+  type: string;
+  title: string;
+  description?: string;
+  keywords?: string[];
+  placekey?: string;
   refs: Ref[];
-  geopose: GeoPose;
-  size?: number;
-  bbox?: string;
+  geopose: GeoPose;
+  size?: number;
+  bbox?: string;
 }
 
 export interface Scr {
