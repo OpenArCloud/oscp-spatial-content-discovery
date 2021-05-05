@@ -14,7 +14,7 @@ Authentication/authorization is based on JSON Web Tokens (JWTs) via the [OpenID 
 ## Usage
 
 
-Tested on Node 12.18.3
+Tested on Node 14.6.1
 
 ```
 git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
