@@ -90,6 +90,11 @@ export interface Ref {
   url: URL;
 }
 
+export interface Def {
+  type: string;
+  value: string;
+}
+
 export interface Content {
   id: string; //tenant supplied reference ID
   type: string; //high-level OSCP type
@@ -100,7 +105,8 @@ export interface Content {
   refs: Ref[];
   geopose: GeoPose;
   size?: number; 
-  bbox?: string; 
+  bbox?: string;
+  definitions?: Def[]; 
 }
 
 export interface Scr {
@@ -108,7 +114,7 @@ export interface Scr {
   type: string; //record type, "scr" is currently the only valid type
   content: Content;
   tenant: string; //tenant or content owner, populated by platform based on auth
-  timestamp: Date; //platform generated timestamp
+  timestamp: number; //platform generated timestamp
 }
 ```
 

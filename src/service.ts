@@ -64,7 +64,7 @@ export const find = async (topic: string, id: string): Promise<Scr> => {
       type: p.tags.type,
       content: p.tags.content,
       tenant: p.tags.tenant,
-      timestamp: p.timestamp,
+      timestamp: new Date(p.timestamp).getTime() / 1000,
     }));
 
   const scrs: Scr[] = mapResponse(nodes);
@@ -174,7 +174,7 @@ export const findHex = async (
       type: p.tags.type,
       content: p.tags.content,
       tenant: p.tags.tenant,
-      timestamp: p.timestamp,
+      timestamp: new Date(p.timestamp).getTime() / 1000,
     }));
 
   const scrs: Scr[] = mapResponse(nodes);
@@ -210,7 +210,7 @@ export const findAllTenant = async (
       type: p.tags.type,
       content: p.tags.content,
       tenant: p.tags.tenant,
-      timestamp: p.timestamp,
+      timestamp: new Date(p.timestamp).getTime() / 1000,
     }));
 
   const scrs: Scr[] = mapResponse(nodesAllTenant);

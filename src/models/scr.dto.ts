@@ -16,6 +16,22 @@ import {
   ValidateNested,
 } from "class-validator";
 
+export class QuaternionDto {
+
+  @IsNumber()
+  x: number;
+
+  @IsNumber()
+  y: number;
+
+  @IsNumber()
+  z: number;
+
+  @IsNumber()
+  w: number;
+
+}
+
 export class GeoPoseDto {
   @IsLongitude()
   longitude: number;
@@ -26,10 +42,10 @@ export class GeoPoseDto {
   @IsNumber()
   ellipsoidHeight: number;
 
-  @IsNumber({}, { each: true })
-  @ArrayMaxSize(4)
-  @ArrayMinSize(4)
-  quaternion: number[];
+  @ValidateNested()
+  @IsDefined()
+  @Type(() => QuaternionDto)
+  quaternion: QuaternionDto;
 }
 
 export class RefDto {
@@ -38,6 +54,14 @@ export class RefDto {
 
   @IsUrl()
   url: URL;
+}
+
+export class DefDto {
+  @IsString()
+  type: string;
+
+  @IsString()
+  value: string;
 }
 
 export class ContentDto {
@@ -80,6 +104,12 @@ export class ContentDto {
   @IsString()
   @IsOptional()
   bbox?: string;
+
+  @ValidateNested()
+  @IsOptional()
+  @ArrayNotEmpty()
+  @Type(() => DefDto)
+  definitions?: DefDto[];  
 }
 
 export class ScrDto {
