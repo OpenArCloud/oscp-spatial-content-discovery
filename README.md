@@ -78,11 +78,18 @@ application/vnd.oscp+json; version=1.0;
 GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
 
 ```js
+export interface Quaternion {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+}
+
 export interface GeoPose {
   longitude: number;
   latitude: number;
   ellipsoidHeight: number;
-  quaternion: number[];
+  quaternion: Quaternion;
 }
 
 export interface Ref {
