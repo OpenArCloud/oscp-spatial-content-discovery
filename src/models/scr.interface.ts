@@ -1,13 +1,26 @@
+
+export interface Quaternion {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+}
+
 export interface GeoPose {
   longitude: number;
   latitude: number;
   ellipsoidHeight: number;
-  quaternion: number[];
+  quaternion: Quaternion;
 }
 
 export interface Ref {
   contentType: string;
   url: URL;
+}
+
+export interface Def {
+  type: string;
+  value: string;
 }
 
 export interface Content {
@@ -21,6 +34,7 @@ export interface Content {
   geopose: GeoPose;
   size?: number;
   bbox?: string;
+  definitions?: Def[];
 }
 
 export interface Scr {
@@ -28,5 +42,5 @@ export interface Scr {
   type: string;
   content: Content;
   tenant: string;
-  timestamp: Date;
+  timestamp: number;
 }
