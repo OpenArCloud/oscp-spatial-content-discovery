@@ -100,7 +100,6 @@ export const remove = async (
       { changeset: nodes[0].changeset },
       function (err) {
         if (err) reject(err);
-        else resolve();
       }
     );
   });
