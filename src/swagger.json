@@ -265,6 +265,23 @@
     }
   },
   "definitions": {
+    "Quaternion": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        }
+      }
+    },
     "GeoPose": {
       "type": "object",
       "properties": {
@@ -278,12 +295,7 @@
           "type": "number"
         },
         "quaternion": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          },
-          "minItems": 4,
-          "maxItems": 4
+          "$ref": "#/definitions/Quaternion"
         }
       }
     },
@@ -294,6 +306,17 @@
           "type": "string"
         },
         "url": {
+          "type": "string"
+        }
+      }
+    },
+    "Def": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
           "type": "string"
         }
       }
@@ -319,6 +342,9 @@
             "type": "string"
           }
         },
+        "placekey": {
+          "type": "string"
+        },
         "refs": {
           "type": "array",
           "items": {
@@ -333,6 +359,12 @@
         },
         "bbox": {
           "type": "string"
+        },
+        "defs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Def"
+          }
         }
       }
     },
@@ -352,7 +384,7 @@
           "type": "string"
         },
         "timestamp": {
-          "type": "string"
+          "type": "number"
         }
       }
     },
