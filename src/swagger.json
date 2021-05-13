@@ -360,7 +360,7 @@
         "bbox": {
           "type": "string"
         },
-        "defs": {
+        "definitions": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Def"
