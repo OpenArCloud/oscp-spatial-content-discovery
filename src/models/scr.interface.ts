@@ -30,7 +30,7 @@ export interface Content {
   description?: string;
   keywords?: string[];
   placekey?: string;
-  refs: Ref[];
+  refs?: Ref[];
   geopose: GeoPose;
   size?: number;
   bbox?: string;
