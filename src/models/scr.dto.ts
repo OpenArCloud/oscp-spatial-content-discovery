@@ -87,10 +87,10 @@ export class ContentDto {
   placekey?: string;
 
   @ValidateNested()
-  @IsDefined()
+  @IsOptional()
   @ArrayNotEmpty()
   @Type(() => RefDto)
-  refs: RefDto[];
+  refs?: RefDto[];
 
   @ValidateNested()
   @IsDefined()
