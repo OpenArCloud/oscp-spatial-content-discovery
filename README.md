@@ -94,7 +94,7 @@ export interface GeoPose {
 
 export interface Ref {
   contentType: string; //ex. "model/gltf+json"
-  url: URL;
+  url: URL;
 }
 
 export interface Def {
@@ -103,16 +103,16 @@ export interface Def {
 }
 
 export interface Content {
-  id: string; //tenant supplied reference ID
-  type: string; //high-level OSCP type
-  title: string;
-  description?: string;
-  keywords?: string[];
+  id: string; //tenant supplied reference ID
+  type: string; //high-level OSCP type
+  title: string;
+  description?: string;
+  keywords?: string[];
   placekey?: string;
-  refs: Ref[];
-  geopose: GeoPose;
-  size?: number; 
-  bbox?: string;
+  refs?: Ref[];
+  geopose: GeoPose;
+  size?: number; 
+  bbox?: string;
   definitions?: Def[]; 
 }
 
