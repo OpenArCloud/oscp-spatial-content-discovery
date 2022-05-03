@@ -16,6 +16,19 @@ import {
   ValidateNested,
 } from "class-validator";
 
+export class PositionDto {
+
+  @IsLongitude()
+  lon: number;
+
+  @IsLatitude()
+  lat: number;
+
+  @IsNumber()
+  h: number;
+
+}
+
 export class QuaternionDto {
 
   @IsNumber()
@@ -33,14 +46,11 @@ export class QuaternionDto {
 }
 
 export class GeoPoseDto {
-  @IsLongitude()
-  longitude: number;
 
-  @IsLatitude()
-  latitude: number;
-
-  @IsNumber()
-  ellipsoidHeight: number;
+  @ValidateNested()
+  @IsDefined()
+  @Type(() => PositionDto)
+  position: PositionDto;
 
   @ValidateNested()
   @IsDefined()

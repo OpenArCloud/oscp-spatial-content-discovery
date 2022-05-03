@@ -1,4 +1,10 @@
 
+export interface Position {
+  lon: number;
+  lat: number;
+  h: number;
+}
+
 export interface Quaternion {
   x: number;
   y: number;
@@ -7,9 +13,7 @@ export interface Quaternion {
 }
 
 export interface GeoPose {
-  longitude: number;
-  latitude: number;
-  ellipsoidHeight: number;
+  position: Position;
   quaternion: Quaternion;
 }
 
