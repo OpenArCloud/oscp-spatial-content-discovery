@@ -265,6 +265,20 @@
     }
   },
   "definitions": {
+    "Position": {
+      "type": "object",
+      "properties": {
+        "lon": {
+          "type": "number"
+        },
+        "lat": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      }
+    },
     "Quaternion": {
       "type": "object",
       "properties": {
@@ -285,14 +299,8 @@
     "GeoPose": {
       "type": "object",
       "properties": {
-        "longitude": {
-          "type": "number"
-        },
-        "latitude": {
-          "type": "number"
-        },
-        "ellipsoidHeight": {
-          "type": "number"
+        "position": {
+          "$ref": "#/definitions/Position"
         },
         "quaternion": {
           "$ref": "#/definitions/Quaternion"
