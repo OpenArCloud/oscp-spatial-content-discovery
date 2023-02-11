@@ -47,7 +47,7 @@
     "@types/node": "^16.11.12",
     "@types/request-promise": "^4.1.48",
     "concurrently": "^6.4.0",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.20",
     "prettier": "2.5.1",
     "typescript": "4.5.4"
   }
