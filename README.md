@@ -1,153 +1,120 @@
-# oscp-spatial-content-discovery
-OSCP Spatial Content Discovery
+<br />
+<p align="center">
+  <h3 align="center">SCD-FastAPI-Tile38</h3>
+
+  <p align="center">
+    OSCP Spatial Content Discovery using FastAPI and Tile38.
+    <br />
+  </p>
+</p>
 
 
-## Purpose
+<!-- ABOUT THE PROJECT -->
+
+## About The Project
+
+Update of [OSCP Spatial Service Discovery](https://github.com/OpenArCloud/oscp-spatial-content-discovery) to support prototype development in the [MSF Real/Virtual World Inte
+gration Working Group](https://github.com/MetaverseStandards/Virtual-Real-Integration). Adapted from [FastAPI-Tile38](https://github.com/iwpnd/fastapi-tile38).
 
 
-Baseline implementation of the OSCP Spatial Content Discovery APIs. These APIs allow an OSCP client to discover nearby spatial content (ex. 2D/3D virtual assets, spatial experiences). Spatial content records are synchronized in real-time across multiple GeoZone (ex. city-level) providers in a peer-to-peer manner through the [kappa-osm](https://github.com/digidem/kappa-osm) database for decentralized OpenStreetMap. Discovery is managed via [hyperswarm](https://github.com/hyperswarm/hyperswarm).
+<!-- GETTING STARTED -->
 
-The P2P stack is based on components from the [Hypercore protocol](https://hypercore-protocol.org/). [kappa-osm](https://github.com/digidem/kappa-osm) builds on [kappa-core](https://github.com/kappa-db/kappa-core), which combines multiple append-only logs, [hypercores](https://github.com/mafintosh/hypercore), via [multifeed](https://github.com/kappa-db/multifeed), and adds materialized views. Spatial queries rely on a Bkd tree materialized view, [unordered-materialized-bkd](https://github.com/digidem/unordered-materialized-bkd).
+## Getting Started
 
-Authentication/authorization is based on JSON Web Tokens (JWTs) via the [OpenID Connect](https://openid.net/connect/) standard. A sample integration with [Auth0](https://auth0.com/) is provided.
+### Installation
+
+1. Clone and install
+    ```sh
+    git clone https://github.com/OpenArCloud/SCD-FastAPI-Tile38.git
+    cd SCD-FastAPI-Tile38
+    poetry install
+    ```
+2. Setup environment
+    ```sh
+    cp .env.dist .env
+    ```
+3. Start your local stack
+    ```python
+    docker-compose up
+    ```
 
 ## Usage
 
+Once the application is started you can checkout and interact with it via on [localhost:8002/docs](http://localhost:8002/docs).
 
-Tested on Node 14.6.1
+Or you can use it with [http](https://httpie.io/)/[curl](https://curl.se/):
 
-```
-git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
-cd oscp-spatial-content-discovery
-npm install
-```
+```sh
+echo '{ "data": { "type": "Feature", "geometry": {"type": "Point", "coordinates": [-1.472761207099694,50.93965177660982]}, "properties": {"id": "uuid1", "content":[{"geopose": {"position": {"lat": 50.93965177660982, "lon": -1.472761207099694, "h": 1000}, "quaternion": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 0.0}},
+ "metatype": "model3D", "contenttype": "model/gltf+json", "description": "test model","url": "http://path_to_model", "tags": {"name1": "value1", "name2": "value2"}}]}}}' \
+      | http post http://localhost:8002/scr x-api-key:test
+HTTP/1.1 201 Created
+content-length: 34
+content-type: application/json
+date: Mon, 03 Feb 2025 03:00:50 GMT
+server: uvicorn
 
-Create .env file with required params ex.
-
-```
-KAPPA_CORE_DIR="data"
-AUTH0_ISSUER=https://scd-oscp.us.auth0.com/
-AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
-GEOZONE="geo3"
-TOPICS="transit,history,entertainment"
-PORT=3000
-```
-
-Start the Spatial Content Discovery service (development)
-
-```
-npm run dev
-```
-
-Start the Spatial Content Discovery service (production)
-
-```
-npm start
-```
-
-## Testing via Swagger
-
-
-```
-http://localhost:3000/swagger/
-```
-
-![Swagger image](images/swagger.png?raw=true)
-
-
-## Search Logic
-
-The query API expects a client to provide a hexagonal coverage area by using an [H3 index](https://eng.uber.com/h3/) ex. precision level 8. This avoids exposing the client's specific location.
-
-![Search image](images/search.png?raw=true)
-
-
-## API Versioning
-
-Current version: 1.0
-
-The API version can be specified by the HTTP Accept header using a vendor-specific media type as per [RFC4288](https://tools.ietf.org/html/rfc4288):
-
-```
-application/vnd.oscp+json; version=1.0;
-```
-
-
-## Spatial Content Record (SCR)
-
-GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
-
-```js
-export interface Position {
-  lon: number;
-  lat: number;
-  h: number;
+{
+    "elapsed": "3.054657ms",
+    "ok": true
 }
 
-export interface Quaternion {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
 
-export interface GeoPose {
-  position: Position;
-  quaternion: Quaternion;
-}
+http get http://localhost:8002/search/nearby lat==50.937876 lon==-1.471582 radius==1000   x-api-key:test
+HTTP/1.1 200 OK
+content-length: 490
+content-type: application/json
+date: Mon, 03 Feb 2025 03:02:45 GMT
+server: uvicorn
 
-export interface Ref {
-  contentType: string; //ex. "model/gltf+json"
-  url: URL;
-}
-
-export interface Def {
-  type: string;
-  value: string;
-}
-
-export interface Content {
-  id: string; //tenant supplied reference ID
-  type: string; //high-level OSCP type
-  title: string;
-  description?: string;
-  keywords?: string[];
-  placekey?: string;
-  refs?: Ref[];
-  geopose: GeoPose;
-  size?: number; 
-  bbox?: string;
-  definitions?: Def[]; 
-}
-
-export interface Scr {
-  id: string; //platform generated SCR ID
-  type: string; //record type, "scr" is currently the only valid type
-  content: Content;
-  tenant: string; //tenant or content owner, populated by platform based on auth
-  timestamp: number; //platform generated timestamp
+{
+    "data": [
+        {
+            "distance": 214.04799872062975,
+            "id": "uuid1",
+            "object": {
+                "geometry": {
+                    "coordinates": [
+                        -1.472761207099694,
+                        50.93965177660982
+                    ],
+                    "type": "Point"
+                },
+                "properties": {
+                    "content": [
+                        {
+                            "contenttype": "model/gltf+json",
+                            "description": "test model",
+                            "geopose": {
+                                "position": {
+                                    "h": 1000.0,
+                                    "lat": 50.93965177660982,
+                                    "lon": -1.472761207099694
+                                },
+                                "quaternion": {
+                                    "w": 0.0,
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                }
+                            },
+                            "metatype": "model3D",
+                            "tags": {
+                                "name1": "value1",
+                                "name2": "value2"
+                            },
+                            "url": "http://path_to_model"
+                        }
+                    ],
+                    "id": "uuid1"
+                },
+                "type": "Feature"
+            }
+        }
+    ]
 }
 ```
 
+## License
 
-## OSM Document
-
-Documents (OSM elements, observations, etc) have a common format within [kappa-osm](https://github.com/digidem/kappa-osm):
-
-```js
-  {
-    id: String,
-    type: String,
-    lat: String,
-    lon: String,
-    tags: Object,
-    changeset: String,
-    links: Array<String>,
-    version: String,
-    deviceId: String
-  }
-```
-
-## Configuring a Reference Auth Service
-
-To configure Auth0 as a reference auth service please see [Auth0 for SSD](auth0_scd.md).
+Distributed under the MIT License. See `LICENSE` for more information.
