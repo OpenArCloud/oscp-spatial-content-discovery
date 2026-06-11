@@ -14,7 +14,7 @@ Authentication/authorization is based on JSON Web Tokens (JWTs) via the [OpenID 
 ## Usage
 
 
-Tested on Node 14.6.1
+Tested on Node 14-24
 
 ```
 git clone https://github.com/OpenArCloud/oscp-spatial-content-discovery
@@ -54,6 +54,40 @@ http://localhost:3000/swagger/
 
 ![Swagger image](images/swagger.png?raw=true)
 
+## Running the project via Docker
+
+Simply run the following command: `docker compose up -d`. This will build the image based on the present `Dockerfile` and set up the appropriate volumes for the project.
+If you have changed something in the source code and need to rebuild the image before running the service run the following command: `docker compose up --build --force-recreate --no-deps -d` this will rebuild the image and launch the service again. You might need to first stop the containers first with `docker compose down`. Note: Compose automatically reads a `.env` file in the same folder as `docker-compose.yaml` for variable substitution like `${PORT}`.
+
+### Environment Configuration
+
+The project uses a `.env` file to configure both runtime and Docker build settings. Create or update `.env` in the project root with the following variables:
+
+```
+# Data storage directory (relative path, will be mounted into container)
+KAPPA_CORE_DIR=data
+
+# Authentication
+AUTH0_ISSUER=https://<your_tenant>.auth0.com/
+AUTH0_AUDIENCE=https://<your_domain>:<your_port>
+
+# GeoZone identifier used for topic namespacing
+GEOZONE="geo3"
+
+# Comma-separated content topics handled by this node
+TOPICS="transit,history,entertainment"
+
+# Service port (used in container and exported to host)
+PORT=8032
+```
+
+**Variable Reference:**
+- `KAPPA_CORE_DIR`: Local directory for persistent kappa-core database files. This folder is mounted as a bind volume into the container at `/app/${KAPPA_CORE_DIR}`.
+- `AUTH0_ISSUER`: Auth0 OAuth provider issuer URL.
+- `AUTH0_AUDIENCE`: Auth0 audience identifier (typically your service URL).
+- `GEOZONE`: GeoZone namespace prepended to each swarm topic.
+- `TOPICS`: Comma-separated list of content topics managed by this service instance.
+- `PORT`: The port the Node.js service listens on inside the container and exported to the host.
 
 ## Search Logic
 
