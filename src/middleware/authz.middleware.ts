@@ -1,11 +1,13 @@
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
 import * as dotenv from "dotenv";
+import { ProxyAgent } from "proxy-agent";
 
 dotenv.config();
 
 export const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
+    requestAgent: new ProxyAgent(),
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
