@@ -82,6 +82,15 @@ function requireValidH3Index(h3Index: string): void {
   }
 }
 
+/** Turf 7 polygon() requires a closed ring. h3-js 3 does not repeat the first vertex. */
+function closedGeoJsonRing(boundary: number[][]): number[][] {
+  if (boundary.length === 0) return boundary;
+  const first = boundary[0];
+  const last = boundary[boundary.length - 1];
+  if (first[0] === last[0] && first[1] === last[1]) return boundary;
+  return [...boundary, [first[0], first[1]]];
+}
+
 /**
  * kappa-osm only knows OSM primitives (node / way / relation). An SCR is stored
  * as an OSM *node* (`type === "node"`) at the GeoPose lon/lat; the SCR payload
@@ -197,7 +206,7 @@ export const findHex = async (
 
   requireValidH3Index(h3Index);
 
-  const hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
+  const hexBoundary = closedGeoJsonRing(h3.h3ToGeoBoundary(h3Index, true));
   const hexPoly = turf.polygon([hexBoundary]);
 
   const scaledPoly = turf.transformScale(hexPoly, 2);

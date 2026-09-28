@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@placekey/placekey": "1.0.3",
-    "@turf/turf": "^6.5.0",
+    "@turf/turf": "^7.4.0",
     "body-parser": "^1.19.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
