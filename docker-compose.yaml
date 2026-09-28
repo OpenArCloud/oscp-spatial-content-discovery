@@ -1,5 +1,7 @@
 services:
   spatial-content-discovery:
+    image: oscp/oscp-spatial-content-discovery:latest
+    container_name: oscp-spatial-content-discovery
     env_file:
       - .env
     ports:
