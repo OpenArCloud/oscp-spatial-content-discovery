@@ -1,409 +1,434 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
-    "version": "1.0.0",
     "title": "oscp-spatial-content-discovery",
-    "description": "OSCP Spatial Content Discovery Service (Open AR Cloud)",
+    "version": "1.0.0",
+    "description": "OSCP Spatial Content Discovery (Open AR Cloud). Successful record payloads use the vendor media type `application/vnd.oscp+json; version=1.0`.",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    }
-  },
-
   "servers": [
     {
       "url": "/",
-      "description": "Local Dev"
+      "description": "Local dev"
     }
   ],
-
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
   "paths": {
-    "/scrs/{topic}": {
+    "/health": {
       "get": {
-        "summary": "Get SCRs covering h3Index",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          },
-          {
-            "in": "query",
-            "name": "h3Index",
-            "required": false,
-            "description": "SCR h3 Index"
-          },
-          {
-            "in": "query",
-            "name": "placekey",
-            "required": false,
-            "description": "SCR PlaceKey"
-          },
-          {
-            "in": "query",
-            "name": "keywords",
-            "required": false,
-            "description": "SCR keywords"
-          }
-        ],
+        "summary": "Health check",
+        "operationId": "getHealth",
+        "tags": ["Health"],
         "responses": {
           "200": {
-            "description": "OK",
+            "$ref": "#/components/responses/HealthOk"
+          }
+        }
+      }
+    },
+    "/topics": {
+      "get": {
+        "summary": "List content topics served by this SCD instance",
+        "operationId": "listTopics",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Lowercase topic names from this instance's TOPICS configuration",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Scr"
-                  }
+                  "items": { "type": "string" },
+                  "example": ["entertainment", "history", "transit"]
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/scrs/{topic}": {
+      "get": {
+        "summary": "Get SCRs covering an H3 index (and optional filters)",
+        "operationId": "findScrsByHex",
+        "tags": ["SCR"],
+        "parameters": [
+          { "$ref": "#/components/parameters/TopicPath" },
+          { "$ref": "#/components/parameters/H3IndexQuery" },
+          { "$ref": "#/components/parameters/PlacekeyQuery" },
+          { "$ref": "#/components/parameters/KeywordsQuery" }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/OscpScrArray"
           },
-          "404": {
-            "description": "Failed"
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
           }
         }
       },
       "post": {
         "summary": "Create a new SCR",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          }
-        ],
+        "operationId": "createScr",
+        "tags": ["SCR"],
+        "parameters": [{ "$ref": "#/components/parameters/TopicPath" }],
         "requestBody": {
-          "description": "SCR Object",
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/definitions/ScrDto"
-              }
+              "schema": { "$ref": "#/components/schemas/ScrDto" }
             }
           }
         },
-        "produces": ["text/html"],
         "responses": {
           "201": {
-            "description": "OK",
+            "description": "Created; response body is the new record id",
             "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
+              "text/plain": {
+                "schema": { "type": "string" }
               }
             }
           },
-          "404": {
-            "description": "Failed"
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
           }
         },
-        "security": [
-          {
-            "bearerAuth": ["create:scrs"]
-          }
-        ]
+        "security": [{ "bearerAuth": ["create:scrs"] }]
       }
     },
     "/scrs/{topic}/{id}": {
       "get": {
-        "summary": "Get SCR with given ID",
+        "summary": "Get SCR by id",
+        "operationId": "getScrById",
+        "tags": ["SCR"],
         "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "description": "SCR id"
-          }
+          { "$ref": "#/components/parameters/TopicPath" },
+          { "$ref": "#/components/parameters/IdPath" }
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/definitions/Scr"
-                }
-              }
-            }
+            "$ref": "#/components/responses/OscpScr"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
           },
           "404": {
-            "description": "Failed"
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
           }
         }
       },
-      "delete": {
-        "summary": "Delete SCR with given ID",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "description": "SCR id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Failed"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": ["delete:scrs"]
-          }
-        ]
-      },
       "put": {
-        "summary": "Update SCR with given ID",
+        "summary": "Update SCR",
+        "operationId": "updateScr",
+        "tags": ["SCR"],
         "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "description": "SCR id"
-          }
+          { "$ref": "#/components/parameters/TopicPath" },
+          { "$ref": "#/components/parameters/IdPath" }
         ],
         "requestBody": {
-          "description": "SCR Object",
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/definitions/ScrDto"
-              }
+              "schema": { "$ref": "#/components/schemas/ScrDto" }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
           },
           "500": {
-            "description": "Failed"
+            "$ref": "#/components/responses/Error500"
           }
         },
-        "security": [
-          {
-            "bearerAuth": ["update:scrs"]
+        "security": [{ "bearerAuth": ["update:scrs"] }]
+      },
+      "delete": {
+        "summary": "Delete SCR",
+        "operationId": "deleteScr",
+        "tags": ["SCR"],
+        "parameters": [
+          { "$ref": "#/components/parameters/TopicPath" },
+          { "$ref": "#/components/parameters/IdPath" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
           }
-        ]
+        },
+        "security": [{ "bearerAuth": ["delete:scrs"] }]
       }
     },
     "/tenant/scrs/{topic}": {
       "get": {
-        "summary": "Get all own SCRs for tenant",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "topic",
-            "required": true,
-            "description": "SCR topic"
-          }
-        ],
+        "summary": "List SCRs for the authenticated tenant",
+        "operationId": "listTenantScrs",
+        "tags": ["SCR"],
+        "parameters": [{ "$ref": "#/components/parameters/TopicPath" }],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Scr"
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/OscpScrArray"
           },
-          "404": {
-            "description": "Failed"
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
           }
         },
-        "security": [
-          {
-            "bearerAuth": ["read:scrs"]
-          }
-        ]
+        "security": [{ "bearerAuth": ["read:scrs"] }]
       }
     }
   },
-  "definitions": {
-    "Position": {
-      "type": "object",
-      "properties": {
-        "lon": {
-          "type": "number"
-        },
-        "lat": {
-          "type": "number"
-        },
-        "h": {
-          "type": "number"
-        }
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Auth0 JWT. When AUTH_REQUIRED=false (local/dev), protected routes accept requests without a token."
       }
     },
-    "Quaternion": {
-      "type": "object",
-      "properties": {
-        "x": {
-          "type": "number"
-        },
-        "y": {
-          "type": "number"
-        },
-        "z": {
-          "type": "number"
-        },
-        "w": {
-          "type": "number"
-        }
+    "parameters": {
+      "TopicPath": {
+        "name": "topic",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Content topic (lowercased by the service)"
+      },
+      "IdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Platform-generated SCR id"
+      },
+      "H3IndexQuery": {
+        "name": "h3Index",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "H3 cell index for geographic search"
+      },
+      "PlacekeyQuery": {
+        "name": "placekey",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "Placekey (alternative to h3Index)"
+      },
+      "KeywordsQuery": {
+        "name": "keywords",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "Comma-separated keywords"
       }
     },
-    "GeoPose": {
-      "type": "object",
-      "properties": {
-        "position": {
-          "$ref": "#/definitions/Position"
-        },
-        "quaternion": {
-          "$ref": "#/definitions/Quaternion"
-        }
-      }
-    },
-    "Ref": {
-      "type": "object",
-      "properties": {
-        "contentType": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        }
-      }
-    },
-    "Def": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      }
-    },
-    "Content": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "keywords": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "placekey": {
-          "type": "string"
-        },
-        "refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Ref"
-          }
-        },
-        "geopose": {
-          "$ref": "#/definitions/GeoPose"
-        },
-        "size": {
-          "type": "number"
-        },
-        "bbox": {
-          "type": "string"
-        },
-        "definitions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Def"
-          }
-        }
-      }
-    },
-    "Scr": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
+    "responses": {
+      "HealthOk": {
+        "description": "Service is healthy",
         "content": {
-          "$ref": "#/definitions/Content"
-        },
-        "tenant": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "number"
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Health" }
+          }
+        }
+      },
+      "OscpScr": {
+        "description": "OK",
+        "content": {
+          "application/vnd.oscp+json; version=1.0": {
+            "schema": { "$ref": "#/components/schemas/Scr" }
+          }
+        }
+      },
+      "OscpScrArray": {
+        "description": "OK",
+        "content": {
+          "application/vnd.oscp+json; version=1.0": {
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/Scr" }
+            }
+          }
+        }
+      },
+      "Error400": {
+        "description": "Bad request (validation, invalid topic, invalid h3Index, etc.)",
+        "content": {
+          "text/plain": {
+            "schema": { "type": "string" }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Forbidden (invalid tenant / JWT claim)",
+        "content": {
+          "text/plain": {
+            "schema": { "type": "string" }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Record not found",
+        "content": {
+          "text/plain": {
+            "schema": { "type": "string" }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Internal server error",
+        "content": {
+          "text/plain": {
+            "schema": { "type": "string" }
+          }
         }
       }
     },
-    "ScrDto": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "content": {
-          "$ref": "#/definitions/Content"
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "required": ["lon", "lat", "h"],
+        "properties": {
+          "lon": { "type": "number" },
+          "lat": { "type": "number" },
+          "h": { "type": "number" }
+        }
+      },
+      "Quaternion": {
+        "type": "object",
+        "required": ["x", "y", "z", "w"],
+        "properties": {
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "z": { "type": "number" },
+          "w": { "type": "number" }
+        }
+      },
+      "GeoPose": {
+        "type": "object",
+        "required": ["position", "quaternion"],
+        "properties": {
+          "position": { "$ref": "#/components/schemas/Position" },
+          "quaternion": { "$ref": "#/components/schemas/Quaternion" }
+        }
+      },
+      "Ref": {
+        "type": "object",
+        "required": ["contentType", "url"],
+        "properties": {
+          "contentType": { "type": "string" },
+          "url": {
+            "type": "string",
+            "description": "Absolute http(s) URL, or a root-relative path in the client public folder (for example /media/pointclouds/cloud1.ply).",
+            "pattern": "^(https?:\\/\\/[^\\s]+|\\/(?!\\/)[\\w\\-./%~]+)$"
+          }
+        }
+      },
+      "Def": {
+        "type": "object",
+        "required": ["type", "value"],
+        "properties": {
+          "type": { "type": "string" },
+          "value": { "type": "string" }
+        }
+      },
+      "Content": {
+        "type": "object",
+        "required": ["id", "type", "title", "geopose"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "keywords": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "placekey": { "type": "string" },
+          "refs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Ref" }
+          },
+          "geopose": { "$ref": "#/components/schemas/GeoPose" },
+          "framedPose": {
+            "type": "object",
+            "description": "Optional opaque SpatialDDS FramedPose. Not validated by this geographic service."
+          },
+          "size": { "type": "number" },
+          "bbox": { "type": "string" },
+          "definitions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Def" }
+          }
+        }
+      },
+      "Scr": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "content": { "$ref": "#/components/schemas/Content" },
+          "tenant": { "type": "string" },
+          "timestamp": { "type": "number" }
+        }
+      },
+      "ScrDto": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["scr"]
+          },
+          "content": { "$ref": "#/components/schemas/Content" }
         }
       }
     }

@@ -1,23 +1,19 @@
 import { Type } from "class-transformer";
 
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  ArrayNotEmpty,
+  Equals,
   IsDefined,
   IsLatitude,
   IsLongitude,
-  IsUrl,
   IsNumber,
+  IsObject,
   IsOptional,
-  IsPositive,
   IsString,
-  Equals,
+  Matches,
   ValidateNested,
 } from "class-validator";
 
 export class PositionDto {
-
   @IsLongitude()
   lon: number;
 
@@ -26,11 +22,9 @@ export class PositionDto {
 
   @IsNumber()
   h: number;
-
 }
 
 export class QuaternionDto {
-
   @IsNumber()
   x: number;
 
@@ -42,11 +36,9 @@ export class QuaternionDto {
 
   @IsNumber()
   w: number;
-
 }
 
 export class GeoPoseDto {
-
   @ValidateNested()
   @IsDefined()
   @Type(() => PositionDto)
@@ -62,8 +54,16 @@ export class RefDto {
   @IsString()
   contentType: string;
 
-  @IsUrl()
-  url: URL;
+  /**
+   * Absolute http(s) URL, or a root-relative path in the client public folder
+   * (for example `/media/pointclouds/cloud1.ply`).
+   * Keep this pattern aligned with `refUrlPattern` in scd-access.
+   */
+  @Matches(/^(https?:\/\/[^\s]+|\/(?!\/)[\w\-./%~]+)$/, {
+    message:
+      "url must be an absolute http(s) URL or a root-relative client public path",
+  })
+  url: string;
 }
 
 export class DefDto {
@@ -96,9 +96,8 @@ export class ContentDto {
   @IsOptional()
   placekey?: string;
 
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @IsOptional()
-  @ArrayNotEmpty()
   @Type(() => RefDto)
   refs?: RefDto[];
 
@@ -106,6 +105,11 @@ export class ContentDto {
   @IsDefined()
   @Type(() => GeoPoseDto)
   geopose: GeoPoseDto;
+
+  /** Opaque SpatialDDS payload. This service does not validate FramedPose internals. */
+  @IsOptional()
+  @IsObject()
+  framedPose?: any;
 
   @IsNumber()
   @IsOptional()
@@ -115,11 +119,10 @@ export class ContentDto {
   @IsOptional()
   bbox?: string;
 
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @IsOptional()
-  @ArrayNotEmpty()
   @Type(() => DefDto)
-  definitions?: DefDto[];  
+  definitions?: DefDto[];
 }
 
 export class ScrDto {

@@ -15,6 +15,23 @@ const AUTH_REQUIRED: boolean = ["1", "true", "yes", "on"].includes(
 
 const NOAUTH_TENANT = "noauthtest";
 
+function httpStatusForError(message: string): number {
+  if (message && message.startsWith("Validation failed")) {
+    return 400;
+  }
+  switch (message) {
+    case "No record found":
+      return 404;
+    case "Invalid topic":
+    case "Invalid h3Index":
+      return 400;
+    case "Invalid tenant":
+      return 403;
+    default:
+      return 500;
+  }
+}
+
 class Router {
   constructor(server: express.Express) {
     const router = express.Router();
@@ -33,6 +50,14 @@ class Router {
       return tenant;
     };
 
+    router.get("/health", (_req: express.Request, res: express.Response) => {
+      res.status(200).json({ status: "ok" });
+    });
+
+    router.get("/topics", (_req: express.Request, res: express.Response) => {
+      res.status(200).json(Service.listTopics());
+    });
+
     router.get(
       "/tenant/scrs/:topic",
       ...(AUTH_REQUIRED ? [checkJwt, jwtAuthz(["read:scrs"])] : []),
@@ -46,7 +71,7 @@ class Router {
             .type("application/vnd.oscp+json; version=" + Global.scdVersion)
             .send(scrs);
         } catch (e: any) {
-          res.status(404).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );
@@ -63,7 +88,7 @@ class Router {
             .type("application/vnd.oscp+json; version=" + Global.scdVersion)
             .send(scr);
         } catch (e: any) {
-          res.status(404).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );
@@ -79,7 +104,7 @@ class Router {
           await Service.remove(topic, id, tenant);
           res.sendStatus(200);
         } catch (e: any) {
-          res.status(500).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );
@@ -88,10 +113,6 @@ class Router {
       "/scrs/:topic",
       async (req: express.Request, res: express.Response) => {
         try {
-          // if(req.accepts('application/vnd.oscp+json; version=1.0')) {
-          // console.log('valid version');
-          // }
-
           const topic: string = req.params.topic.toLowerCase();
           const h3Index: string = req.query.h3Index as string;
           const keywords: string = req.query.keywords as string;
@@ -108,7 +129,7 @@ class Router {
             .type("application/vnd.oscp+json; version=" + Global.scdVersion)
             .send(scrs);
         } catch (e: any) {
-          res.status(404).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );
@@ -124,7 +145,7 @@ class Router {
           const id: string = await Service.create(topic, scr, tenant);
           res.status(201).send(id);
         } catch (e: any) {
-          res.status(404).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );
@@ -141,7 +162,7 @@ class Router {
           await Service.update(topic, id, scr, tenant);
           res.sendStatus(200);
         } catch (e: any) {
-          res.status(500).send(e.message);
+          res.status(httpStatusForError(e.message)).send(e.message);
         }
       }
     );

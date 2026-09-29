@@ -1,4 +1,3 @@
-
 export interface Position {
   lon: number;
   lat: number;
@@ -19,7 +18,8 @@ export interface GeoPose {
 
 export interface Ref {
   contentType: string;
-  url: URL;
+  /** Absolute http(s) URL, or a root-relative path in the client public folder. */
+  url: string;
 }
 
 export interface Def {
@@ -36,6 +36,8 @@ export interface Content {
   placekey?: string;
   refs?: Ref[];
   geopose: GeoPose;
+  /** Opaque SpatialDDS FramedPose; not interpreted by this geographic service. */
+  framedPose?: any;
   size?: number;
   bbox?: string;
   definitions?: Def[];

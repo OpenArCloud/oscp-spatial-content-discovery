@@ -1,6 +1,6 @@
 {
   "name": "oscp-spatial-content-discovery",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@placekey/placekey": "1.0.3",
-    "@turf/turf": "^6.5.0",
+    "@turf/turf": "^7.4.0",
     "body-parser": "^1.19.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -37,8 +37,6 @@
     "pump": "^3.0.0",
     "random-access-memory": "^4.0.0",
     "reflect-metadata": "^0.1.13",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
     "swagger-ui-express": "^4.2.0"
   },
   "devDependencies": {
@@ -46,7 +44,6 @@
     "@types/express-jwt": "6.0.3",
     "@types/helmet": "^4.0.0",
     "@types/node": "^16.11.12",
-    "@types/request-promise": "^4.1.48",
     "concurrently": "^6.4.0",
     "nodemon": "^2.0.15",
     "prettier": "2.5.1",

@@ -25,13 +25,16 @@ npm install
 Create .env file with required params ex.
 
 ```
-KAPPA_CORE_DIR="data"
+KAPPA_CORE_DIR=data
+AUTH_REQUIRED=true
 AUTH0_ISSUER=https://scd-oscp.us.auth0.com/
 AUTH0_AUDIENCE=https://scd.oscp.cloudpose.io
-GEOZONE="geo3"
-TOPICS="transit,history,entertainment"
-PORT=3000
+GEOZONE=geo3
+TOPICS=transit,history,entertainment
+PORT=8032
 ```
+
+The service listens on port **8032** when `PORT` is unset. Set `PORT` to use a different port.
 
 Start the Spatial Content Discovery service (development)
 
@@ -49,15 +52,62 @@ npm start
 
 
 ```
-http://localhost:3000/swagger/
+http://localhost:8032/swagger/
 ```
 
 ![Swagger image](images/swagger.png?raw=true)
 
 ## Running the project via Docker
 
-Simply run the following command: `docker compose up -d`. This will build the image based on the present `Dockerfile` and set up the appropriate volumes for the project.
-If you have changed something in the source code and need to rebuild the image before running the service run the following command: `docker compose up --build --force-recreate --no-deps -d` this will rebuild the image and launch the service again. You might need to first stop the containers first with `docker compose down`. Note: Compose automatically reads a `.env` file in the same folder as `docker-compose.yaml` for variable substitution like `${PORT}`.
+Copy `.env.example` to `.env` and edit it first. The runtime image does not contain that file (the final stage only has `dist` and production dependencies). The process reads `process.env`, so the variables have to be injected when the container starts.
+
+Write values **without** surrounding quotes, as in `.env.example`. A quoted `TOPICS="transit,history"` can keep the quote characters when Docker passes the file through, and the service would then reject the topic list.
+
+`PORT` in `.env` is both the port Node listens on and the port to publish. `KAPPA_CORE_DIR` is a path relative to the project directory; the same relative path is mounted at `/app/<KAPPA_CORE_DIR>` inside the container. The entrypoint creates that directory and makes it writable.
+
+`APP_PORT` is only a build argument. It becomes the image's default `PORT` (and the `EXPOSE` value). A `PORT` value passed at run time overrides it. Use the same number in all three places.
+
+### docker compose
+
+From the project directory (the folder that contains `docker-compose.yaml` and `.env`):
+
+```
+docker compose up --build -d
+```
+
+That build is tagged `oscp/oscp-spatial-content-discovery:latest`.
+
+Compose reads `.env` twice:
+
+- It substitutes `${PORT}` and `${KAPPA_CORE_DIR}` in `docker-compose.yaml` (published port, `APP_PORT` build arg, and the data volume).
+- `env_file: .env` injects every variable from that file into the container, including `GEOZONE`, `TOPICS`, `AUTH_REQUIRED`, `AUTH0_ISSUER`, and `AUTH0_AUDIENCE`.
+
+Rebuild after source or Dockerfile changes, then recreate the container so it picks up `.env` edits:
+
+```
+docker compose down
+docker compose up --build --force-recreate --no-deps -d
+```
+
+`docker compose down` stops the container and does not delete the host data directory.
+
+### docker run
+
+Build with the same port you will publish, then pass `.env` and mount the data directory. This example matches the defaults (`PORT=8032`, `KAPPA_CORE_DIR=data`):
+
+```
+docker build --build-arg APP_PORT=8032 -t oscp/oscp-spatial-content-discovery:latest .
+docker run -d --name oscp-spatial-content-discovery --env-file .env -p 8032:8032 -v "./data:/app/data" oscp/oscp-spatial-content-discovery:latest
+```
+
+`--env-file .env` is what supplies the runtime configuration. `-e NAME=value` overrides a single variable from that file. If `PORT` or `KAPPA_CORE_DIR` in `.env` is not the default, change `--build-arg`, `-p`, and `-v` to match. For `PORT=9000` and `KAPPA_CORE_DIR=data`:
+
+```
+docker build --build-arg APP_PORT=9000 -t oscp/oscp-spatial-content-discovery:latest .
+docker run -d --name oscp-spatial-content-discovery --env-file .env -p 9000:9000 -v "./data:/app/data" oscp/oscp-spatial-content-discovery:latest
+```
+
+Stop and remove the container with `docker rm -f oscp-spatial-content-discovery`. The host `data` directory remains.
 
 ### Environment Configuration
 
@@ -67,27 +117,29 @@ The project uses a `.env` file to configure both runtime and Docker build settin
 # Data storage directory (relative path, will be mounted into container)
 KAPPA_CORE_DIR=data
 
-# Authentication
+# Authentication (default: true; set false only for local/dev without Auth0)
+AUTH_REQUIRED=true
 AUTH0_ISSUER=https://<your_tenant>.auth0.com/
 AUTH0_AUDIENCE=https://<your_domain>:<your_port>
 
-# GeoZone identifier used for topic namespacing
-GEOZONE="geo3"
+# GeoZone identifier used for topic namespacing. No surrounding quotes.
+GEOZONE=geo3
 
-# Comma-separated content topics handled by this node
-TOPICS="transit,history,entertainment"
+# Comma-separated content topics handled by this node. No surrounding quotes.
+TOPICS=transit,history,entertainment
 
-# Service port (used in container and exported to host)
+# Service port (default: 8032). Docker publishes the same port on the host.
 PORT=8032
 ```
 
 **Variable Reference:**
-- `KAPPA_CORE_DIR`: Local directory for persistent kappa-core database files. This folder is mounted as a bind volume into the container at `/app/${KAPPA_CORE_DIR}`.
+- `KAPPA_CORE_DIR`: Local directory for persistent kappa-core database files. This folder is bind-mounted into the container at `/app/${KAPPA_CORE_DIR}` and is not copied into the image. On startup, the container makes that directory readable by every user, so a host account can back it up.
+- `AUTH_REQUIRED`: When `true` (the default), mutating and tenant routes require a JWT. Set to `false` only for local/dev; writes then use tenant `noauthtest`.
 - `AUTH0_ISSUER`: Auth0 OAuth provider issuer URL.
 - `AUTH0_AUDIENCE`: Auth0 audience identifier (typically your service URL).
 - `GEOZONE`: GeoZone namespace prepended to each swarm topic.
-- `TOPICS`: Comma-separated list of content topics managed by this service instance.
-- `PORT`: The port the Node.js service listens on inside the container and exported to the host.
+- `TOPICS`: Comma-separated list of content topics managed by this service instance. `GET /topics` returns this list as lowercase JSON, so each client asks the server it is using.
+- `PORT`: The port the Node.js service listens on. Default: `8032` when unset. Docker publishes that same port on the host.
 
 ## Search Logic
 
@@ -109,7 +161,9 @@ application/vnd.oscp+json; version=1.0;
 
 ## Spatial Content Record (SCR)
 
-GeoPose will be formalized through the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg). Base version of a Spatial Content Record (expected to evolve):
+GeoPose is standardized in the [OGC GeoPose Working Group](https://www.ogc.org/projects/groups/geoposeswg).
+
+The Spatial Content Record (SCR) schema also allows a [SpatialDDS](https://spatialdds.org/) `FramedPose` (`framedPose`) field. This Spatial Content Discovery service is geographic (kappa-osm nodes need lon/lat), so **`geopose` is required** for all contents. An optional `framedPose` field may be stored as-is and is not validated yet (SpatialDDS is still evolving). FramedPose-only records should be stored in a different content service.
 
 ```js
 export interface Position {
@@ -148,7 +202,8 @@ export interface Content {
   keywords?: string[];
   placekey?: string;
   refs?: Ref[];
-  geopose: GeoPose;
+  geopose: GeoPose; // required here: OSM spatial index is geodetic
+  framedPose?: any; // optional opaque SpatialDDS payload; not interpreted here
   size?: number; 
   bbox?: string;
   definitions?: Def[]; 

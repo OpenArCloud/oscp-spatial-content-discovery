@@ -1,8 +1,7 @@
 import { Scr } from "./models/scr.interface";
-import request from "request-promise";
 import { Element } from "./models/osm_json.interface";
 import { ScrDto } from "./models/scr.dto";
-import { validateOrReject } from "class-validator";
+import { validateOrReject, ValidationError } from "class-validator";
 import "./noise-protocol-compat";
 import kappa from "kappa-core";
 import ram from "random-access-memory";
@@ -17,12 +16,92 @@ import { placekeyToH3, h3ToPlacekey, placekeyToGeo } from "@placekey/placekey";
 
 dotenv.config();
 
-const KAPPA_CORE_DIR: string = process.env.KAPPA_CORE_DIR as string;
-const GEOZONE: string = process.env.GEOZONE as string;
-let TOPICS: string[] = process.env.TOPICS.split(",");
-TOPICS = TOPICS.map(function (x) {
-  return x.toLowerCase();
-});
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (value === undefined || value.trim() === "") {
+    throw new Error(
+      `Missing required environment variable: ${name}. Set it in .env or the process environment.`
+    );
+  }
+  return value;
+}
+
+const KAPPA_CORE_DIR: string = requireEnv("KAPPA_CORE_DIR");
+const GEOZONE: string = requireEnv("GEOZONE");
+const TOPICS: string[] = requireEnv("TOPICS")
+  .split(",")
+  .map((topic) => topic.trim().toLowerCase())
+  .filter((topic) => topic.length > 0);
+
+export function listTopics(): string[] {
+  return [...TOPICS];
+}
+
+function flattenValidationErrors(
+  errors: ValidationError[],
+  parent = ""
+): string[] {
+  const messages: string[] = [];
+  for (const error of errors) {
+    const property = parent ? `${parent}.${error.property}` : error.property;
+    if (error.constraints) {
+      for (const msg of Object.values(error.constraints)) {
+        messages.push(`${property}: ${msg}`);
+      }
+    }
+    if (error.children && error.children.length > 0) {
+      messages.push(...flattenValidationErrors(error.children, property));
+    }
+  }
+  return messages;
+}
+
+async function assertValid(value: object): Promise<void> {
+  try {
+    await validateOrReject(value);
+  } catch (errors) {
+    if (Array.isArray(errors)) {
+      const details = flattenValidationErrors(errors as ValidationError[]);
+      throw new Error(
+        details.length > 0
+          ? `Validation failed: ${details.join("; ")}`
+          : "Validation failed"
+      );
+    }
+    throw errors;
+  }
+}
+
+function sameIgnoreCase(a: string | undefined, b: string): boolean {
+  return typeof a === "string" && a.toUpperCase() === b.toUpperCase();
+}
+
+function requireValidH3Index(h3Index: string): void {
+  if (!h3Index || !h3.h3IsValid(h3Index)) {
+    throw new Error("Invalid h3Index");
+  }
+}
+
+/** Turf 7 polygon() requires a closed ring. h3-js 3 does not repeat the first vertex. */
+function closedGeoJsonRing(boundary: number[][]): number[][] {
+  if (boundary.length === 0) return boundary;
+  const first = boundary[0];
+  const last = boundary[boundary.length - 1];
+  if (first[0] === last[0] && first[1] === last[1]) return boundary;
+  return [...boundary, [first[0], first[1]]];
+}
+
+/**
+ * kappa-osm only knows OSM primitives (node / way / relation). An SCR is stored
+ * as an OSM *node* (`type === "node"`) at the GeoPose lon/lat; the SCR payload
+ * lives in the node's tags. Those nodes are not OpenStreetMap POIs. Do not change
+ * the on-disk type: existing databases and bbox queries depend on it.
+ * This service is geographic: geopose is required. Optional framedPose may be
+ * stored alongside it; framedPose-only SCRs belong in a different store.
+ */
+function isLiveScr(element: Element): boolean {
+  return element.type === "node" && !element.deleted;
+}
 
 export interface IHash {
   [key: string]: any;
@@ -92,15 +171,16 @@ export const remove = async (
 
   if (nodes.length === 0) throw new Error("No record found");
   if (nodes[0].deleted) throw new Error("No record found");
-  if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase())
+  if (!sameIgnoreCase(nodes[0].tags.tenant, tenant))
     throw new Error("Invalid tenant");
 
-  const osmDel = new Promise((resolve, reject) => {
+  const osmDel = new Promise<void>((resolve, reject) => {
     kappaCores[topic].del(
       nodes[0].id,
       { changeset: nodes[0].changeset },
       function (err) {
         if (err) reject(err);
+        else resolve();
       }
     );
   });
@@ -124,9 +204,9 @@ export const findHex = async (
     h3Index = placekeyToH3("@" + placekeyComponents[1]);
   }
 
-  if (!h3Index) throw new Error("Invalid h3Index");
+  requireValidH3Index(h3Index);
 
-  const hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
+  const hexBoundary = closedGeoJsonRing(h3.h3ToGeoBoundary(h3Index, true));
   const hexPoly = turf.polygon([hexBoundary]);
 
   const scaledPoly = turf.transformScale(hexPoly, 2);
@@ -152,7 +232,7 @@ export const findHex = async (
     });
   });
 
-  let nodes: Element[] = await osmQuery;
+  let nodes: Element[] = (await osmQuery).filter(isLiveScr);
 
   if (placekey) {
     if (placekeyComponents[0].length > 0) {
@@ -161,11 +241,10 @@ export const findHex = async (
   }
 
   if (keywordArr.length > 0) {
-    nodes = nodes.filter((node) => node.tags.content.keywords);
-    nodes = nodes.filter(
-      (node) =>
-        node.tags.content.keywords.filter((x) => keywordArr.includes(x))
-          .length > 0
+    nodes = nodes.filter((node) =>
+      (node.tags.content.keywords || []).some((x) =>
+        keywordArr.includes(String(x).toLowerCase())
+      )
     );
   }
 
@@ -199,10 +278,10 @@ export const findAllTenant = async (
 
   const elements: Element[] = await osmQuery;
 
-  const nodes = elements.filter((element) => element.type === "node");
+  const nodes = elements.filter(isLiveScr);
 
   const nodesAllTenant = nodes.filter(
-    (element) => element.tags.tenant === tenant
+    (element) => sameIgnoreCase(element.tags.tenant, tenant)
   );
 
   const mapResponse = (response: Element[]) =>
@@ -228,13 +307,10 @@ export const create = async (
 
   if (!tenant) throw new Error("Invalid tenant");
 
-  try {
-    await validateOrReject(scr);
-  } catch (errors) {
-    throw new Error("Validation failed");
-  }
+  await assertValid(scr);
 
   const node: Element = {
+    // Repurposed OSM node: this is the SCR. Keep type "node" for existing records.
     type: "node",
     changeset: "abcdef",
     lon: scr.content.geopose.position.lon,
@@ -273,11 +349,7 @@ export const update = async (
 
   if (!tenant) throw new Error("Invalid tenant");
 
-  try {
-    await validateOrReject(scr);
-  } catch (errors) {
-    throw new Error("Validation failed");
-  }
+  await assertValid(scr);
 
   const osmGet = new Promise<Element[]>((resolve, reject) => {
     kappaCores[topic].get(id, function (err, nodes) {
@@ -290,10 +362,11 @@ export const update = async (
 
   if (nodes.length === 0) throw new Error("No record found");
   if (nodes[0].deleted) throw new Error("No record found");
-  if (nodes[0].tags.tenant.toUpperCase() !== tenant.toUpperCase())
+  if (!sameIgnoreCase(nodes[0].tags.tenant, tenant))
     throw new Error("Invalid tenant");
 
   const node: Element = {
+    // Repurposed OSM node: this is the SCR. Keep type "node" for existing records.
     type: "node",
     changeset: "abcdef",
     lon: scr.content.geopose.position.lon,

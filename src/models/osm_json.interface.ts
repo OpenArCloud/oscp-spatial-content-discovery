@@ -10,6 +10,7 @@ export interface Tags {
 export interface Element {
   id?: string;
   deleted?: boolean;
+  // kappa-osm primitive: "node" is repurposed as an SCR (point at GeoPose lon/lat).
   type: string;
   changeset: string;
   uid?: string;
